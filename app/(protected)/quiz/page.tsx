@@ -185,7 +185,7 @@ export default function QuizPage() {
             IB 400 — Fit & Behavioral
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Question {currentIndex + 1} of {questions.length}
+            Question {currentIndex + 1}/{TOTAL_IB400}
           </p>
         </div>
         <div className="flex items-center gap-2">
