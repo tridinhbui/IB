@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,7 +14,6 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQuizStore } from "@/store/useQuizStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,9 +27,11 @@ import {
   FileText,
   DollarSign,
   BarChart3,
+  Shuffle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DragQuestion } from "@/types/question";
+import { dragQuestions } from "@/lib/questions/drag-questions";
 
 const DROP_ZONES = [
   "Income Statement",
@@ -75,6 +76,15 @@ interface PlacedItem {
   correctAnswer: string;
 }
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function DraggableItem({ question }: { question: DragQuestion }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: question.id,
@@ -87,7 +97,7 @@ function DraggableItem({ question }: { question: DragQuestion }) {
       {...listeners}
       {...attributes}
       className={cn(
-        "flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/50 bg-card cursor-grab active:cursor-grabbing transition-all text-sm shadow-sm hover:shadow-md",
+        "flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/50 bg-card cursor-grab active:cursor-grabbing transition-all text-sm shadow-sm hover:shadow-md hover:border-primary/30",
         isDragging && "opacity-30 scale-95"
       )}
     >
@@ -180,15 +190,13 @@ function DropColumn({
   );
 }
 
+const BATCH_SIZE = 20;
+
 export default function AccountingDragPage() {
   const router = useRouter();
-  const {
-    currentDragQuiz,
-    dragQuizStarted,
-    startDragQuiz,
-    resetDragQuiz,
-  } = useQuizStore();
 
+  const [allQuestions] = useState<DragQuestion[]>(dragQuestions);
+  const [started, setStarted] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [placedItems, setPlacedItems] = useState<Record<string, PlacedItem[]>>({
     "Income Statement": [],
@@ -204,15 +212,30 @@ export default function AccountingDragPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  const handleStart = useCallback(() => {
-    startDragQuiz();
-    const store = useQuizStore.getState();
-    setRemainingQuestions([...store.currentDragQuiz]);
+  const initRound = useCallback((shuffle = true) => {
+    const pool = shuffle ? shuffleArray(allQuestions) : [...allQuestions];
+    const batch = pool.slice(0, BATCH_SIZE);
+    setRemainingQuestions(batch);
     setPlacedItems({ "Income Statement": [], "Balance Sheet": [], "Cash Flow Statement": [] });
     setTotalCorrect(0);
     setTotalWrong(0);
     setIsComplete(false);
-  }, [startDragQuiz]);
+    setStarted(true);
+  }, [allQuestions]);
+
+  useEffect(() => {
+    if (started && remainingQuestions.length === 0 && !isComplete) {
+      initRound(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleStart = useCallback(() => {
+    initRound(true);
+  }, [initRound]);
+
+  const handleShuffleRestart = useCallback(() => {
+    initRound(true);
+  }, [initRound]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -264,14 +287,14 @@ export default function AccountingDragPage() {
   );
 
   const activeItem = remainingQuestions.find((q) => q.id === activeId);
-  const totalQuestions = currentDragQuiz.length || (totalCorrect + totalWrong + remainingQuestions.length);
+  const totalQuestions = totalCorrect + totalWrong + remainingQuestions.length;
 
   const zoneScores = (zone: string) => ({
     correct: placedItems[zone]?.filter((i) => i.correct).length || 0,
     wrong: placedItems[zone]?.filter((i) => !i.correct).length || 0,
   });
 
-  if (!dragQuizStarted || currentDragQuiz.length === 0) {
+  if (!started) {
     return (
       <div className="max-w-2xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -282,8 +305,8 @@ export default function AccountingDragPage() {
               </div>
               <h2 className="text-xl font-bold">Accounting Drag & Drop</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Drag each accounting line item into the correct financial statement:
-                Income Statement, Balance Sheet, or Cash Flow Statement.
+                Drag each accounting line item into the correct financial statement.
+                {allQuestions.length} total items — {BATCH_SIZE} per round, shuffled each time.
                 Wrong answers cost you points!
               </p>
               <div className="flex gap-3 justify-center">
@@ -312,7 +335,7 @@ export default function AccountingDragPage() {
           <Card className="shadow-sm border-border/40">
             <CardHeader className="text-center">
               <Trophy className={cn("w-16 h-16 mx-auto mb-2", accuracy >= 75 ? "text-emerald-500" : "text-amber-500")} />
-              <CardTitle className="text-2xl">Challenge Complete!</CardTitle>
+              <CardTitle className="text-2xl">Round Complete!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-4 gap-4 text-center">
@@ -335,13 +358,17 @@ export default function AccountingDragPage() {
               </div>
 
               <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => { resetDragQuiz(); router.push("/dashboard"); }}>
+                <Button variant="outline" onClick={() => router.push("/dashboard")}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Dashboard
                 </Button>
-                <Button onClick={() => { resetDragQuiz(); handleStart(); }}>
+                <Button onClick={handleShuffleRestart}>
+                  <Shuffle className="w-4 h-4 mr-2" />
+                  New Round (Shuffled)
+                </Button>
+                <Button variant="outline" onClick={() => { initRound(true); }}>
                   <RotateCcw className="w-4 h-4 mr-2" />
-                  Try Again
+                  Retry
                 </Button>
               </div>
             </CardContent>
@@ -409,6 +436,9 @@ export default function AccountingDragPage() {
           <Badge variant="secondary">
             {remainingQuestions.length} left
           </Badge>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShuffleRestart} title="Restart with new shuffle">
+            <Shuffle className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
@@ -420,7 +450,7 @@ export default function AccountingDragPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           <Card className="shadow-sm border-border/40">
             <CardHeader className="pb-2 pt-3">
-              <CardTitle className="text-xs">Line Items</CardTitle>
+              <CardTitle className="text-xs">Line Items ({remainingQuestions.length})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-1.5 max-h-[65vh] overflow-y-auto scrollbar-thin pb-3">
               <AnimatePresence>

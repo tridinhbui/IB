@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   createBaseModel,
@@ -33,6 +33,7 @@ import {
   AlertTriangle,
   Bot,
   ChevronDown,
+  ChevronRight,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -138,21 +139,25 @@ function StatementRow({
   value,
   delta,
   isHighlighted,
+  isNewlyHighlighted,
   isBold,
 }: {
   label: string;
   value: number;
   delta: number;
   isHighlighted: boolean;
+  isNewlyHighlighted: boolean;
   isBold?: boolean;
 }) {
   return (
     <motion.div
       layout
+      animate={isNewlyHighlighted ? { backgroundColor: delta > 0 ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)" } : {}}
+      transition={{ duration: 0.5 }}
       className={cn(
         "flex items-center justify-between px-3 py-1.5 rounded-md transition-all text-[12px]",
-        isHighlighted && delta > 0 && "bg-emerald-50 dark:bg-emerald-950/30",
-        isHighlighted && delta < 0 && "bg-red-50 dark:bg-red-950/30",
+        isHighlighted && !isNewlyHighlighted && delta > 0 && "bg-emerald-50/60 dark:bg-emerald-950/20",
+        isHighlighted && !isNewlyHighlighted && delta < 0 && "bg-red-50/60 dark:bg-red-950/20",
         !isHighlighted && "hover:bg-muted/30"
       )}
     >
@@ -191,6 +196,7 @@ function StatementCard({
   fields,
   statementKey,
   highlightedFields,
+  newestField,
 }: {
   title: string;
   color: string;
@@ -198,6 +204,7 @@ function StatementCard({
   fields: string[];
   statementKey: "incomeStatement" | "balanceSheet" | "cashFlowStatement";
   highlightedFields: Map<string, number>;
+  newestField: string | null;
 }) {
   const obj = model[statementKey] as unknown as Record<string, number>;
   const boldFields = ["grossProfit", "ebit", "ebt", "netIncome", "totalCurrentAssets", "totalAssets", "totalCurrentLiabilities", "totalLiabilities", "totalEquity", "totalLiabilitiesAndEquity", "cashFromOperations", "cashFromInvesting", "cashFromFinancing", "netChangeInCash", "endingCash"];
@@ -214,6 +221,7 @@ function StatementCard({
         {fields.map((f) => {
           const delta = highlightedFields.get(f) ?? 0;
           const isHighlighted = highlightedFields.has(f);
+          const isNewlyHighlighted = newestField === f;
           return (
             <StatementRow
               key={f}
@@ -221,6 +229,7 @@ function StatementCard({
               value={obj[f] ?? 0}
               delta={delta}
               isHighlighted={isHighlighted}
+              isNewlyHighlighted={isNewlyHighlighted}
               isBold={boldFields.includes(f)}
             />
           );
@@ -244,8 +253,7 @@ export default function SimulationPage() {
 
   const [stepChanges, setStepChanges] = useState<StepChange[]>([]);
   const [revealedStepCount, setRevealedStepCount] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  const [stepping, setStepping] = useState(false);
 
   const eventDef = useMemo(
     () => EVENT_DEFINITIONS.find((e) => e.type === selectedEvent),
@@ -276,41 +284,23 @@ export default function SimulationPage() {
     return map;
   }, [stepChanges, revealedStepCount]);
 
+  const newestStep = revealedStepCount > 0 ? stepChanges[revealedStepCount - 1] : null;
+
+  const newestFieldIS = newestStep?.statement === "Income Statement" ? newestStep.field : null;
+  const newestFieldBS = newestStep?.statement === "Balance Sheet" ? newestStep.field : null;
+  const newestFieldCFS = newestStep?.statement === "Cash Flow" ? newestStep.field : null;
+
   const revealedExplanationIndex = useMemo(() => {
     if (!result) return -1;
     const totalSteps = stepChanges.length;
-    if (totalSteps === 0) return -1;
+    if (totalSteps === 0 || revealedStepCount === 0) return -1;
     const ratio = revealedStepCount / totalSteps;
     return Math.min(Math.floor(ratio * result.explanation.length), result.explanation.length - 1);
   }, [result, stepChanges.length, revealedStepCount]);
 
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) clearTimeout(animationRef.current);
-    };
-  }, []);
-
-  const animateSteps = useCallback((steps: StepChange[]) => {
-    setRevealedStepCount(0);
-    setIsAnimating(true);
-    let count = 0;
-
-    const revealNext = () => {
-      count++;
-      setRevealedStepCount(count);
-      if (count < steps.length) {
-        animationRef.current = setTimeout(revealNext, 400);
-      } else {
-        setIsAnimating(false);
-      }
-    };
-
-    animationRef.current = setTimeout(revealNext, 300);
-  }, []);
+  const allRevealed = stepping && revealedStepCount >= stepChanges.length;
 
   const handleApplyEvent = useCallback(() => {
-    if (animationRef.current) clearTimeout(animationRef.current);
-
     const assumptions = { amount, taxRate: taxRate / 100, usefulLife };
     const res = processEvent(model, selectedEvent, assumptions);
     setResult(res);
@@ -324,23 +314,31 @@ export default function SimulationPage() {
 
     const steps = buildStepChanges(res);
     setStepChanges(steps);
-    animateSteps(steps);
-  }, [model, selectedEvent, amount, taxRate, usefulLife, eventDef, animateSteps]);
+    setRevealedStepCount(0);
+    setStepping(true);
+  }, [model, selectedEvent, amount, taxRate, usefulLife, eventDef]);
 
-  const handleRevealAll = useCallback(() => {
-    if (animationRef.current) clearTimeout(animationRef.current);
+  const handleNextStep = useCallback(() => {
+    if (revealedStepCount < stepChanges.length) {
+      setRevealedStepCount(revealedStepCount + 1);
+    }
+  }, [revealedStepCount, stepChanges.length]);
+
+  const handleShowAll = useCallback(() => {
     setRevealedStepCount(stepChanges.length);
-    setIsAnimating(false);
   }, [stepChanges.length]);
 
+  const handleDoneSteps = useCallback(() => {
+    setStepping(false);
+  }, []);
+
   const handleReset = useCallback(() => {
-    if (animationRef.current) clearTimeout(animationRef.current);
     setModel(createBaseModel());
     setResult(null);
     setEventHistory([]);
     setStepChanges([]);
     setRevealedStepCount(0);
-    setIsAnimating(false);
+    setStepping(false);
     setGuessRevealed(false);
     setUserGuess("");
   }, []);
@@ -361,20 +359,13 @@ export default function SimulationPage() {
             3-Statement Simulation
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Apply events step-by-step and watch changes flow across all 3 statements
+            Apply events and click through each impact step-by-step
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {isAnimating && (
-            <Button variant="outline" size="sm" onClick={handleRevealAll} className="text-xs">
-              Show All
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={handleReset}>
-            <RotateCcw className="w-3.5 h-3.5 mr-1" />
-            Reset
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={handleReset}>
+          <RotateCcw className="w-3.5 h-3.5 mr-1" />
+          Reset
+        </Button>
       </motion.div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
@@ -391,7 +382,11 @@ export default function SimulationPage() {
                 <div className="relative">
                   <button
                     onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
-                    className="w-full text-left flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-sm shadow-sm hover:bg-muted/30 transition-colors"
+                    disabled={stepping}
+                    className={cn(
+                      "w-full text-left flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-sm shadow-sm hover:bg-muted/30 transition-colors",
+                      stepping && "opacity-50 cursor-not-allowed"
+                    )}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div className={cn("w-2 h-2 rounded-full shrink-0", CATEGORY_COLORS[eventDef?.category || "Operating"])} />
@@ -400,7 +395,7 @@ export default function SimulationPage() {
                     <ChevronDown className={cn("w-4 h-4 text-muted-foreground shrink-0 transition-transform", eventDropdownOpen && "rotate-180")} />
                   </button>
                   <AnimatePresence>
-                    {eventDropdownOpen && (
+                    {eventDropdownOpen && !stepping && (
                       <motion.div
                         initial={{ opacity: 0, y: -4 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -449,6 +444,7 @@ export default function SimulationPage() {
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
                     className="h-9 text-sm"
+                    disabled={stepping}
                   />
                 </div>
                 <div className="space-y-1">
@@ -460,6 +456,7 @@ export default function SimulationPage() {
                     className="h-9 text-sm"
                     min={0}
                     max={100}
+                    disabled={stepping}
                   />
                 </div>
                 {(selectedEvent === "depreciation" ||
@@ -473,6 +470,7 @@ export default function SimulationPage() {
                       onChange={(e) => setUsefulLife(Number(e.target.value))}
                       className="h-9 text-sm"
                       min={1}
+                      disabled={stepping}
                     />
                   </div>
                 )}
@@ -492,14 +490,40 @@ export default function SimulationPage() {
                 />
               </div>
 
-              <Button
-                onClick={handleApplyEvent}
-                disabled={isAnimating}
-                className="w-full gradient-primary text-white shadow-lg shadow-primary/20 h-10 text-sm font-semibold"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Apply Event
-              </Button>
+              {!stepping ? (
+                <Button
+                  onClick={handleApplyEvent}
+                  className="w-full gradient-primary text-white shadow-lg shadow-primary/20 h-10 text-sm font-semibold"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Apply Event
+                </Button>
+              ) : (
+                <div className="space-y-2">
+                  {!allRevealed ? (
+                    <Button
+                      onClick={handleNextStep}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 text-sm font-semibold"
+                    >
+                      <ChevronRight className="w-4 h-4 mr-1" />
+                      Next Step ({revealedStepCount}/{stepChanges.length})
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleDoneSteps}
+                      className="w-full gradient-primary text-white shadow-lg shadow-primary/20 h-10 text-sm font-semibold"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Done — Apply Next Event
+                    </Button>
+                  )}
+                  {!allRevealed && (
+                    <Button variant="ghost" size="sm" onClick={handleShowAll} className="w-full text-xs h-7 text-muted-foreground">
+                      Skip — Show All Steps
+                    </Button>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -548,8 +572,8 @@ export default function SimulationPage() {
                 <FlaskConical className="w-16 h-16 mx-auto text-muted-foreground/20 mb-4" />
                 <h3 className="text-lg font-bold mb-2">Ready to Simulate</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                  Choose an event from the panel and click &quot;Apply Event&quot;.
-                  Each change will appear step-by-step across all 3 statements.
+                  Choose an event and click &quot;Apply Event&quot;.
+                  Then click &quot;Next Step&quot; to see each change appear one at a time.
                 </p>
               </CardContent>
             </Card>
@@ -562,18 +586,17 @@ export default function SimulationPage() {
                 </div>
               )}
 
-              {isAnimating && (
+              {stepping && (
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
-                      initial={{ width: "0%" }}
-                      animate={{ width: `${(revealedStepCount / stepChanges.length) * 100}%` }}
+                      animate={{ width: `${stepChanges.length > 0 ? (revealedStepCount / stepChanges.length) * 100 : 0}%` }}
                       transition={{ duration: 0.3 }}
                     />
                   </div>
-                  <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                    {revealedStepCount}/{stepChanges.length} changes
+                  <span className="text-xs text-muted-foreground tabular-nums shrink-0 font-medium">
+                    Step {revealedStepCount} / {stepChanges.length}
                   </span>
                 </div>
               )}
@@ -586,6 +609,7 @@ export default function SimulationPage() {
                   fields={IS_FIELDS}
                   statementKey="incomeStatement"
                   highlightedFields={highlightedIS}
+                  newestField={newestFieldIS}
                 />
                 <StatementCard
                   title="Balance Sheet"
@@ -594,6 +618,7 @@ export default function SimulationPage() {
                   fields={BS_FIELDS}
                   statementKey="balanceSheet"
                   highlightedFields={highlightedBS}
+                  newestField={newestFieldBS}
                 />
                 <StatementCard
                   title="Cash Flow Statement"
@@ -602,29 +627,34 @@ export default function SimulationPage() {
                   fields={CFS_FIELDS}
                   statementKey="cashFlowStatement"
                   highlightedFields={highlightedCFS}
+                  newestField={newestFieldCFS}
                 />
               </div>
 
               {revealedStepCount > 0 && (
-                <AnimatePresence>
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-                  >
-                    <Card className="shadow-sm border-border/40">
-                      <CardContent className="pt-4 pb-4 space-y-2">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Sparkles className="w-4 h-4 text-primary" />
-                          <h3 className="font-bold text-sm">Step-by-Step Changes</h3>
-                        </div>
-                        <div className="space-y-1.5">
-                          {stepChanges.slice(0, revealedStepCount).map((step, i) => (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                >
+                  <Card className="shadow-sm border-border/40">
+                    <CardContent className="pt-4 pb-4 space-y-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <h3 className="font-bold text-sm">Changes Revealed</h3>
+                      </div>
+                      <div className="space-y-1.5">
+                        {stepChanges.slice(0, revealedStepCount).map((step, i) => {
+                          const isNewest = i === revealedStepCount - 1;
+                          return (
                             <motion.div
                               key={`${step.field}-${i}`}
                               initial={{ opacity: 0, x: -12 }}
                               animate={{ opacity: 1, x: 0 }}
-                              className="flex items-center gap-2 text-xs"
+                              className={cn(
+                                "flex items-center gap-2 text-xs rounded-md px-2 py-1 transition-colors",
+                                isNewest && "bg-primary/5 ring-1 ring-primary/20"
+                              )}
                             >
                               <Badge variant="secondary" className="text-[8px] px-1.5 py-0 font-bold shrink-0">{i + 1}</Badge>
                               <Badge
@@ -647,55 +677,55 @@ export default function SimulationPage() {
                                 {fmt(Math.abs(step.delta))}
                               </span>
                             </motion.div>
-                          ))}
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {showExplanation && result && (
+                    <Card className="shadow-sm border-l-4 border-l-primary border-border/40">
+                      <CardContent className="pt-4 pb-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Bot className="w-4 h-4 text-primary" />
+                          <h3 className="font-bold text-sm">Explanation</h3>
                         </div>
+                        <ol className="space-y-2">
+                          {result.explanation.map((step, i) => (
+                            <motion.li
+                              key={i}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: i <= revealedExplanationIndex ? 1 : 0.15 }}
+                              className="flex gap-2 text-xs leading-relaxed"
+                            >
+                              <span className="text-primary font-bold shrink-0">{i + 1}.</span>
+                              <span className="text-muted-foreground">{step}</span>
+                            </motion.li>
+                          ))}
+                        </ol>
+
+                        {allRevealed && result.mentalModel.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3"
+                          >
+                            <Separator className="mb-3 opacity-50" />
+                            <div className="flex items-center gap-2 mb-2">
+                              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                              <p className="text-[11px] font-bold">Mental Model</p>
+                            </div>
+                            <div className="space-y-1 p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-800/30">
+                              {result.mentalModel.map((line, i) => (
+                                <p key={i} className="text-[11px] text-muted-foreground leading-relaxed">{line}</p>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
                       </CardContent>
                     </Card>
-
-                    {showExplanation && result && (
-                      <Card className="shadow-sm border-l-4 border-l-primary border-border/40">
-                        <CardContent className="pt-4 pb-4 space-y-3">
-                          <div className="flex items-center gap-2">
-                            <Bot className="w-4 h-4 text-primary" />
-                            <h3 className="font-bold text-sm">Explanation</h3>
-                          </div>
-                          <ol className="space-y-2">
-                            {result.explanation.map((step, i) => (
-                              <motion.li
-                                key={i}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: i <= revealedExplanationIndex ? 1 : 0.2 }}
-                                className="flex gap-2 text-xs leading-relaxed"
-                              >
-                                <span className="text-primary font-bold shrink-0">{i + 1}.</span>
-                                <span className="text-muted-foreground">{step}</span>
-                              </motion.li>
-                            ))}
-                          </ol>
-
-                          {revealedStepCount === stepChanges.length && result.mentalModel.length > 0 && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="mt-3"
-                            >
-                              <Separator className="mb-3 opacity-50" />
-                              <div className="flex items-center gap-2 mb-2">
-                                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                                <p className="text-[11px] font-bold">Mental Model</p>
-                              </div>
-                              <div className="space-y-1 p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-800/30">
-                                {result.mentalModel.map((line, i) => (
-                                  <p key={i} className="text-[11px] text-muted-foreground leading-relaxed">{line}</p>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+                  )}
+                </motion.div>
               )}
             </>
           )}

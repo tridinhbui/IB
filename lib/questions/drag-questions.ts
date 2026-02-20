@@ -6,7 +6,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Cost of Goods Sold",
     correctAnswer: "Income Statement",
     explanation:
-      "Cost of Goods Sold primarily belongs on the Income Statement because it is an expense that directly measures the cost of producing revenue. It is the key expense that reduces gross profit to operating profit and ultimately net income.",
+      "COGS is an expense that directly measures the cost of producing revenue. It reduces gross profit on the Income Statement.",
     difficulty: "Beginner",
   },
   {
@@ -14,7 +14,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Accounts Receivable",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Accounts Receivable primarily belongs on the Balance Sheet because it is an asset representing a claim to future cash from customers. It captures the company's financial position at a point in time rather than measuring performance over a period.",
+      "AR is a current asset representing money owed by customers. It sits on the Balance Sheet as part of the company's financial position.",
     difficulty: "Beginner",
   },
   {
@@ -22,7 +22,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Interest Expense",
     correctAnswer: "Income Statement",
     explanation:
-      "Interest Expense primarily belongs on the Income Statement because it is an expense that reduces pre-tax income. It measures the cost of financing over a period, directly impacting profitability and net income.",
+      "Interest Expense reduces pre-tax income on the Income Statement. It measures the cost of debt financing over a period.",
     difficulty: "Beginner",
   },
   {
@@ -30,7 +30,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Deferred Revenue",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Deferred Revenue primarily belongs on the Balance Sheet because it is a liability representing an obligation to deliver goods or services. It is a snapshot of unearned amounts owed to customers at a point in time.",
+      "Deferred Revenue is a liability — the company received cash but hasn't delivered goods/services yet. It sits on the Balance Sheet.",
     difficulty: "Beginner",
   },
   {
@@ -38,7 +38,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Capital Expenditures",
     correctAnswer: "Cash Flow Statement",
     explanation:
-      "Capital Expenditures primarily belongs on the Cash Flow Statement because it represents a cash outflow in the investing section. CapEx measures actual cash spent on long-term assets, which is the core purpose of the Cash Flow Statement.",
+      "CapEx is a cash outflow in the investing section of the CFS. It measures actual cash spent on long-term assets.",
     difficulty: "Beginner",
   },
   {
@@ -46,7 +46,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Retained Earnings",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Retained Earnings primarily belongs on the Balance Sheet because it is a component of shareholders' equity. It represents the cumulative profits retained in the business and is a key measure of the company's financial position.",
+      "Retained Earnings is a component of shareholders' equity on the Balance Sheet — cumulative profits kept in the business.",
     difficulty: "Beginner",
   },
   {
@@ -54,7 +54,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Dividends Paid",
     correctAnswer: "Cash Flow Statement",
     explanation:
-      "Dividends Paid primarily belongs on the Cash Flow Statement because it is a cash outflow in the financing section. It measures actual cash distributed to shareholders, which is the primary way this transaction is captured.",
+      "Dividends Paid is a cash outflow in the financing section of the CFS. It measures actual cash distributed to shareholders.",
     difficulty: "Beginner",
   },
   {
@@ -62,7 +62,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Prepaid Expenses",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Prepaid Expenses primarily belongs on the Balance Sheet because it is a current asset representing future economic benefits. It captures the value of advance payments that have not yet been consumed.",
+      "Prepaid Expenses are a current asset representing future economic benefits from advance payments. They sit on the Balance Sheet.",
     difficulty: "Beginner",
   },
   {
@@ -70,7 +70,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Revenue",
     correctAnswer: "Income Statement",
     explanation:
-      "Revenue primarily belongs on the Income Statement because it is the top line measuring income earned from operations over a period. It is the starting point for measuring profitability and financial performance.",
+      "Revenue is the top line of the Income Statement — income earned from operations over a period.",
     difficulty: "Beginner",
   },
   {
@@ -78,7 +78,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Accrued Liabilities",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Accrued Liabilities primarily belong on the Balance Sheet because they are obligations representing expenses incurred but not yet paid. They capture what the company owes at a point in time.",
+      "Accrued Liabilities are Balance Sheet obligations — expenses incurred but not yet paid in cash.",
     difficulty: "Beginner",
   },
   {
@@ -86,7 +86,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Treasury Stock",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Treasury Stock primarily belongs on the Balance Sheet because it is a contra-equity account representing shares repurchased. It reduces shareholders' equity and reflects the company's capital structure at a point in time.",
+      "Treasury Stock is a contra-equity account on the Balance Sheet — shares repurchased that reduce total equity.",
     difficulty: "Beginner",
   },
   {
@@ -94,7 +94,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Income Tax Expense",
     correctAnswer: "Income Statement",
     explanation:
-      "Income Tax Expense primarily belongs on the Income Statement because it is the final expense that reduces pre-tax income to net income. It measures the tax burden on earnings for the period.",
+      "Income Tax Expense reduces pre-tax income to net income on the Income Statement. It's the tax burden for the period.",
     difficulty: "Beginner",
   },
   {
@@ -102,7 +102,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Depreciation Expense",
     correctAnswer: "Income Statement",
     explanation:
-      "Depreciation Expense primarily belongs on the Income Statement because it is an operating expense that allocates the cost of PP&E to the period. Its primary impact is reducing net income to reflect the consumption of long-term assets.",
+      "Depreciation is an operating expense on the IS that allocates the cost of PP&E over its useful life. It also gets added back on the CFS as a non-cash charge.",
     difficulty: "Advanced",
   },
   {
@@ -110,7 +110,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Stock-Based Compensation",
     correctAnswer: "Income Statement",
     explanation:
-      "Stock-Based Compensation primarily belongs on the Income Statement because it is an operating expense that measures compensation cost for the period. It reflects the fair value of equity granted to employees as part of their compensation.",
+      "SBC is an operating expense on the IS measuring the fair value of equity granted to employees. It's added back on the CFS as non-cash.",
     difficulty: "Advanced",
   },
   {
@@ -118,7 +118,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Goodwill Impairment",
     correctAnswer: "Income Statement",
     explanation:
-      "Goodwill Impairment primarily belongs on the Income Statement because it is an impairment charge that reduces net income. It measures the decline in value of an acquired business and its impact on current period profitability.",
+      "Goodwill Impairment is a charge on the IS that reduces net income. It reflects the decline in value of an acquisition.",
     difficulty: "Advanced",
   },
   {
@@ -126,7 +126,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Amortization of Intangibles",
     correctAnswer: "Income Statement",
     explanation:
-      "Amortization of Intangibles primarily belongs on the Income Statement because it is an expense that allocates the cost of intangible assets to the period. It reduces net income to reflect the consumption of intangible value over time.",
+      "Amortization allocates intangible asset costs to each period on the IS. Like depreciation, it's added back on the CFS.",
     difficulty: "Advanced",
   },
   {
@@ -134,7 +134,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Inventory Write-Down",
     correctAnswer: "Income Statement",
     explanation:
-      "Inventory Write-Down primarily belongs on the Income Statement because it is a write-down expense that reduces net income. It reflects the decline in inventory value and its immediate impact on profitability when NRV falls below cost.",
+      "An Inventory Write-Down is an expense on the IS when inventory's NRV falls below its cost, reducing net income.",
     difficulty: "Advanced",
   },
   {
@@ -142,7 +142,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Bad Debt Expense",
     correctAnswer: "Income Statement",
     explanation:
-      "Bad Debt Expense primarily belongs on the Income Statement because it is an operating expense that reduces net income. It estimates the portion of receivables that will not be collected and measures that loss for the period.",
+      "Bad Debt Expense is an operating expense on the IS estimating uncollectible receivables. It reduces net income.",
     difficulty: "Advanced",
   },
   {
@@ -150,7 +150,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Gain on Sale of Assets",
     correctAnswer: "Income Statement",
     explanation:
-      "Gain on Sale of Assets primarily belongs on the Income Statement because it is a gain that increases net income. It measures the excess of sale proceeds over book value, reflecting the profitability impact of the disposition.",
+      "A gain on asset sale increases net income on the IS. It's the excess of sale proceeds over book value.",
     difficulty: "Advanced",
   },
   {
@@ -158,7 +158,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Unrealized Gain on Investments",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Unrealized Gain on Investments primarily belongs on the Balance Sheet because it flows through Other Comprehensive Income to accumulated OCI in equity. The gain is unrealized—no sale has occurred—so it reflects a change in asset carrying value rather than a realized performance measure.",
+      "Unrealized gains flow through OCI to accumulated OCI in equity on the BS. No sale occurred, so it doesn't hit the IS.",
     difficulty: "Advanced",
   },
   {
@@ -166,7 +166,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Deferred Tax Liability",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Deferred Tax Liability primarily belongs on the Balance Sheet because it is a non-current liability representing future tax obligations. It arises from timing differences between book and tax treatment and captures what will be owed.",
+      "A DTL is a non-current liability on the BS representing future tax obligations from timing differences between book and tax.",
     difficulty: "Advanced",
   },
   {
@@ -174,7 +174,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Operating Lease Right-of-Use Asset",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Operating Lease Right-of-Use Asset primarily belongs on the Balance Sheet because it is a non-current asset representing the right to use leased property. Under ASC 842, the lease creates an asset and liability that reflect the company's position.",
+      "Under ASC 842, operating leases create a right-of-use asset on the BS representing the right to use leased property.",
     difficulty: "Advanced",
   },
   {
@@ -182,7 +182,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Debt Issuance (Proceeds from Borrowing)",
     correctAnswer: "Cash Flow Statement",
     explanation:
-      "Debt Issuance primarily belongs on the Cash Flow Statement because it represents a cash inflow in the financing section. It measures actual cash received from lenders, which is the primary economic event of borrowing.",
+      "Debt Issuance is a cash inflow in the financing section of the CFS. It measures actual cash received from lenders.",
     difficulty: "Advanced",
   },
   {
@@ -190,7 +190,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Issuance of Common Stock",
     correctAnswer: "Cash Flow Statement",
     explanation:
-      "Issuance of Common Stock primarily belongs on the Cash Flow Statement because it represents a cash inflow in the financing section. It measures actual cash received from equity issuance, which is the primary economic event.",
+      "Equity issuance is a cash inflow in the financing section of the CFS. It measures actual cash received from new shares.",
     difficulty: "Advanced",
   },
   {
@@ -198,7 +198,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Convertible Debt",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Convertible Debt primarily belongs on the Balance Sheet because it is a liability representing amounts owed to bondholders. Until conversion, the debt obligation and its classification as debt or equity are balance sheet considerations.",
+      "Convertible Debt is a liability on the BS representing amounts owed to bondholders until conversion to equity.",
     difficulty: "Elite",
   },
   {
@@ -206,7 +206,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Pension Obligation (Defined Benefit)",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Pension Obligation primarily belongs on the Balance Sheet because it is a liability representing the present value of future pension benefits owed to employees. It captures the company's obligation to fulfill defined benefit commitments.",
+      "A Pension Obligation is a BS liability — the PV of future pension benefits owed to employees under a defined benefit plan.",
     difficulty: "Elite",
   },
   {
@@ -214,7 +214,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Foreign Currency Translation Adjustment",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Foreign Currency Translation Adjustment primarily belongs on the Balance Sheet because it flows through Other Comprehensive Income to accumulated OCI in equity. It reflects the revaluation of foreign subsidiary assets and liabilities without affecting the Income Statement.",
+      "FX Translation Adjustment flows through OCI to accumulated OCI in equity on the BS. It doesn't affect the IS.",
     difficulty: "Elite",
   },
   {
@@ -222,7 +222,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Asset Retirement Obligation",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Asset Retirement Obligation primarily belongs on the Balance Sheet because it is a liability representing the estimated cost to retire or restore an asset. It captures the legal obligation to dismantle or remediate at the end of the asset's life.",
+      "An ARO is a BS liability representing the estimated cost to retire, dismantle, or restore an asset at end of life.",
     difficulty: "Elite",
   },
   {
@@ -230,7 +230,7 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Capitalized Software Development Costs",
     correctAnswer: "Balance Sheet",
     explanation:
-      "Capitalized Software Development Costs primarily belong on the Balance Sheet because they are recorded as an intangible asset. The costs that meet capitalization criteria are recognized as an asset representing future economic benefit rather than an immediate expense.",
+      "Capitalized software costs are an intangible asset on the BS. They represent future economic benefit, not an immediate expense.",
     difficulty: "Elite",
   },
   {
@@ -238,7 +238,167 @@ export const dragQuestions: DragQuestion[] = [
     lineItem: "Restructuring Charges",
     correctAnswer: "Income Statement",
     explanation:
-      "Restructuring Charges primarily belong on the Income Statement because they are expenses that reduce net income. They measure the cost of significant organizational changes—severance, lease terminations, asset write-downs—and their impact on current period profitability.",
+      "Restructuring Charges are expenses on the IS — severance, lease terminations, asset write-downs — reducing net income.",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-31",
+    lineItem: "Gross Profit",
+    correctAnswer: "Income Statement",
+    explanation:
+      "Gross Profit = Revenue − COGS. It's a subtotal on the Income Statement measuring profit before operating expenses.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-32",
+    lineItem: "Cash and Cash Equivalents",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Cash is the most liquid current asset on the Balance Sheet. It represents the company's immediately available funds.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-33",
+    lineItem: "Accounts Payable",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "AP is a current liability on the BS — amounts owed to suppliers for goods/services received but not yet paid.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-34",
+    lineItem: "SG&A Expenses",
+    correctAnswer: "Income Statement",
+    explanation:
+      "Selling, General & Administrative expenses are operating costs on the IS that reduce operating income (EBIT).",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-35",
+    lineItem: "Net Income",
+    correctAnswer: "Income Statement",
+    explanation:
+      "Net Income is the bottom line of the Income Statement — total profit after all expenses, taxes, and interest.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-36",
+    lineItem: "Long-Term Debt",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Long-Term Debt is a non-current liability on the BS representing borrowings due in more than one year.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-37",
+    lineItem: "Inventory",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Inventory is a current asset on the BS — goods held for sale. It becomes COGS on the IS only when sold.",
+    difficulty: "Beginner",
+  },
+  {
+    id: "drag-38",
+    lineItem: "Depreciation Add-Back",
+    correctAnswer: "Cash Flow Statement",
+    explanation:
+      "Depreciation is added back in the operating section of the CFS because it's a non-cash charge that reduced Net Income.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-39",
+    lineItem: "Change in Working Capital",
+    correctAnswer: "Cash Flow Statement",
+    explanation:
+      "Changes in working capital (AR, inventory, AP, etc.) are adjustments in the operating section of the CFS to reconcile net income to actual cash.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-40",
+    lineItem: "Repayment of Long-Term Debt",
+    correctAnswer: "Cash Flow Statement",
+    explanation:
+      "Debt repayment is a cash outflow in the financing section of the CFS. Principal payments are NOT an expense on the IS.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-41",
+    lineItem: "EBITDA",
+    correctAnswer: "Income Statement",
+    explanation:
+      "EBITDA (Earnings Before Interest, Taxes, Depreciation & Amortization) is derived from the IS. It measures operating profitability before non-cash charges.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-42",
+    lineItem: "Goodwill",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Goodwill is an intangible asset on the BS representing the premium paid above fair value in an acquisition.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-43",
+    lineItem: "Common Stock (Par Value + APIC)",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Common Stock and Additional Paid-In Capital are equity components on the BS representing capital contributed by shareholders.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-44",
+    lineItem: "Purchase of Marketable Securities",
+    correctAnswer: "Cash Flow Statement",
+    explanation:
+      "Purchasing securities is a cash outflow in the investing section of the CFS. It represents actual cash spent on financial investments.",
+    difficulty: "Advanced",
+  },
+  {
+    id: "drag-45",
+    lineItem: "Warranty Expense",
+    correctAnswer: "Income Statement",
+    explanation:
+      "Warranty Expense is an estimated cost recorded on the IS when products are sold. The corresponding liability (warranty reserve) goes on the BS.",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-46",
+    lineItem: "Minority Interest (Non-Controlling Interest)",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "NCI is an equity component on the BS representing the portion of a subsidiary not owned by the parent company.",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-47",
+    lineItem: "Deferred Tax Asset",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "A DTA is a non-current asset on the BS representing future tax benefits from timing differences (e.g., NOL carryforwards).",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-48",
+    lineItem: "Share Repurchase (Buyback)",
+    correctAnswer: "Cash Flow Statement",
+    explanation:
+      "Share repurchases are cash outflows in the financing section of the CFS. The shares become treasury stock on the BS.",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-49",
+    lineItem: "Operating Lease Liability",
+    correctAnswer: "Balance Sheet",
+    explanation:
+      "Under ASC 842, operating leases create both a right-of-use asset and a corresponding lease liability on the BS.",
+    difficulty: "Elite",
+  },
+  {
+    id: "drag-50",
+    lineItem: "Loss on Extinguishment of Debt",
+    correctAnswer: "Income Statement",
+    explanation:
+      "A loss on debt extinguishment hits the IS when a company repays debt at a premium or writes off unamortized issuance costs.",
     difficulty: "Elite",
   },
 ];
