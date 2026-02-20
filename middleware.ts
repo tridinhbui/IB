@@ -10,5 +10,6 @@ export const config = {
     "/quiz/:path*",
     "/accounting-drag/:path*",
     "/simulation/:path*",
+    "/dcf/:path*",
   ],
 };

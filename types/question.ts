@@ -25,7 +25,7 @@ export interface Question {
 export interface DragQuestion {
   id: string;
   lineItem: string;
-  correctAnswer: "Income Statement" | "Cash Flow Statement" | "Balance Sheet" | "Multiple Statements";
+  correctAnswer: "Income Statement" | "Cash Flow Statement" | "Balance Sheet";
   explanation: string;
   difficulty: Difficulty;
 }

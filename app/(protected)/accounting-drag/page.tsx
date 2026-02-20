@@ -18,7 +18,6 @@ import { useQuizStore } from "@/store/useQuizStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   GripVertical,
   CheckCircle2,
@@ -29,52 +28,58 @@ import {
   FileText,
   DollarSign,
   BarChart3,
-  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DragQuestion } from "@/types/question";
 
 const DROP_ZONES = [
   "Income Statement",
-  "Cash Flow Statement",
   "Balance Sheet",
-  "Multiple Statements",
+  "Cash Flow Statement",
 ] as const;
+
+type DropZoneType = (typeof DROP_ZONES)[number];
 
 const zoneIcons: Record<string, typeof FileText> = {
   "Income Statement": FileText,
-  "Cash Flow Statement": DollarSign,
   "Balance Sheet": BarChart3,
-  "Multiple Statements": Layers,
+  "Cash Flow Statement": DollarSign,
 };
 
-const zoneColors: Record<string, string> = {
-  "Income Statement": "border-blue-500/30 bg-blue-500/5",
-  "Cash Flow Statement": "border-emerald-500/30 bg-emerald-500/5",
-  "Balance Sheet": "border-amber-500/30 bg-amber-500/5",
-  "Multiple Statements": "border-purple-500/30 bg-purple-500/5",
+const zoneColors: Record<string, { border: string; bg: string; active: string; dot: string }> = {
+  "Income Statement": {
+    border: "border-blue-500/30",
+    bg: "bg-blue-500/5",
+    active: "border-blue-500/60 bg-blue-500/10",
+    dot: "bg-blue-500",
+  },
+  "Balance Sheet": {
+    border: "border-amber-500/30",
+    bg: "bg-amber-500/5",
+    active: "border-amber-500/60 bg-amber-500/10",
+    dot: "bg-amber-500",
+  },
+  "Cash Flow Statement": {
+    border: "border-emerald-500/30",
+    bg: "bg-emerald-500/5",
+    active: "border-emerald-500/60 bg-emerald-500/10",
+    dot: "bg-emerald-500",
+  },
 };
 
-const zoneActiveColors: Record<string, string> = {
-  "Income Statement": "border-blue-500/60 bg-blue-500/10",
-  "Cash Flow Statement": "border-emerald-500/60 bg-emerald-500/10",
-  "Balance Sheet": "border-amber-500/60 bg-amber-500/10",
-  "Multiple Statements": "border-purple-500/60 bg-purple-500/10",
-};
+interface PlacedItem {
+  id: string;
+  lineItem: string;
+  correct: boolean;
+  explanation: string;
+  correctAnswer: string;
+}
 
-function DraggableItem({
-  question,
-  isPlaced,
-}: {
-  question: DragQuestion;
-  isPlaced: boolean;
-}) {
+function DraggableItem({ question }: { question: DragQuestion }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: question.id,
     data: question,
   });
-
-  if (isPlaced) return null;
 
   return (
     <div
@@ -82,59 +87,93 @@ function DraggableItem({
       {...listeners}
       {...attributes}
       className={cn(
-        "flex items-center gap-2 px-4 py-3 rounded-lg border border-border/50 bg-card cursor-grab active:cursor-grabbing transition-all",
-        isDragging && "opacity-50 scale-95"
+        "flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border/50 bg-card cursor-grab active:cursor-grabbing transition-all text-sm shadow-sm hover:shadow-md",
+        isDragging && "opacity-30 scale-95"
       )}
     >
-      <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
-      <span className="text-sm font-medium">{question.lineItem}</span>
+      <GripVertical className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+      <span className="font-medium text-xs">{question.lineItem}</span>
     </div>
   );
 }
 
-function DropZone({
+function DropColumn({
   zone,
   placedItems,
   isActive,
+  score,
 }: {
   zone: string;
-  placedItems: { id: string; lineItem: string }[];
+  placedItems: PlacedItem[];
   isActive: boolean;
+  score: { correct: number; wrong: number };
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: zone });
   const Icon = zoneIcons[zone] || FileText;
+  const colors = zoneColors[zone];
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        "rounded-lg border-2 border-dashed p-4 min-h-[120px] transition-all",
-        isOver ? zoneActiveColors[zone] : zoneColors[zone],
-        isActive && !isOver && "animate-pulse"
+        "rounded-xl border-2 border-dashed p-3 min-h-[300px] transition-all flex flex-col",
+        isOver ? colors.active : `${colors.border} ${colors.bg}`,
+        isActive && !isOver && "border-dashed"
       )}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-semibold">{zone}</span>
-        {placedItems.length > 0 && (
-          <Badge variant="secondary" className="text-[10px] ml-auto">
-            {placedItems.length}
-          </Badge>
-        )}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className={cn("w-2.5 h-2.5 rounded-full", colors.dot)} />
+          <Icon className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs font-bold">{zone}</span>
+        </div>
+        <div className="flex gap-1">
+          {score.correct > 0 && (
+            <Badge className="bg-emerald-100 text-emerald-700 text-[9px] px-1.5 py-0 dark:bg-emerald-900/30 dark:text-emerald-400">
+              +{score.correct}
+            </Badge>
+          )}
+          {score.wrong > 0 && (
+            <Badge className="bg-red-100 text-red-700 text-[9px] px-1.5 py-0 dark:bg-red-900/30 dark:text-red-400">
+              -{score.wrong}
+            </Badge>
+          )}
+        </div>
       </div>
-      <div className="space-y-2">
-        {placedItems.map((item) => (
-          <div
-            key={item.id}
-            className="px-3 py-2 rounded-md bg-card/80 text-sm border border-border/30"
-          >
-            {item.lineItem}
-          </div>
-        ))}
+      <div className="space-y-1.5 flex-1">
+        <AnimatePresence>
+          {placedItems.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn(
+                "px-3 py-2 rounded-lg text-xs border flex items-start gap-2",
+                item.correct
+                  ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800"
+                  : "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
+              )}
+            >
+              {item.correct ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+              )}
+              <div className="min-w-0">
+                <p className="font-medium truncate">{item.lineItem}</p>
+                {!item.correct && (
+                  <p className="text-[10px] text-red-600 dark:text-red-400 mt-0.5">
+                    Correct: {item.correctAnswer}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {placedItems.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-4">
-            Drop items here
-          </p>
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-[10px] text-muted-foreground">Drop items here</p>
+          </div>
         )}
       </div>
     </div>
@@ -145,20 +184,35 @@ export default function AccountingDragPage() {
   const router = useRouter();
   const {
     currentDragQuiz,
-    dragAnswers,
     dragQuizStarted,
-    dragQuizCompleted,
-    submitDragAnswer,
     startDragQuiz,
-    completeDragQuiz,
     resetDragQuiz,
   } = useQuizStore();
 
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [placedItems, setPlacedItems] = useState<Record<string, PlacedItem[]>>({
+    "Income Statement": [],
+    "Balance Sheet": [],
+    "Cash Flow Statement": [],
+  });
+  const [remainingQuestions, setRemainingQuestions] = useState<DragQuestion[]>([]);
+  const [totalCorrect, setTotalCorrect] = useState(0);
+  const [totalWrong, setTotalWrong] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
+
+  const handleStart = useCallback(() => {
+    startDragQuiz();
+    const store = useQuizStore.getState();
+    setRemainingQuestions([...store.currentDragQuiz]);
+    setPlacedItems({ "Income Statement": [], "Balance Sheet": [], "Cash Flow Statement": [] });
+    setTotalCorrect(0);
+    setTotalWrong(0);
+    setIsComplete(false);
+  }, [startDragQuiz]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -173,42 +227,71 @@ export default function AccountingDragPage() {
       const questionId = active.id as string;
       const zone = over.id as string;
 
-      if (DROP_ZONES.includes(zone as typeof DROP_ZONES[number])) {
-        submitDragAnswer(questionId, zone);
+      if (!DROP_ZONES.includes(zone as DropZoneType)) return;
+
+      const question = remainingQuestions.find((q) => q.id === questionId);
+      if (!question) return;
+
+      const isCorrect = question.correctAnswer === zone;
+
+      const newItem: PlacedItem = {
+        id: question.id,
+        lineItem: question.lineItem,
+        correct: isCorrect,
+        explanation: question.explanation,
+        correctAnswer: question.correctAnswer,
+      };
+
+      setPlacedItems((prev) => ({
+        ...prev,
+        [zone]: [...prev[zone], newItem],
+      }));
+
+      if (isCorrect) {
+        setTotalCorrect((c) => c + 1);
+      } else {
+        setTotalWrong((w) => w + 1);
+      }
+
+      const newRemaining = remainingQuestions.filter((q) => q.id !== questionId);
+      setRemainingQuestions(newRemaining);
+
+      if (newRemaining.length === 0) {
+        setIsComplete(true);
       }
     },
-    [submitDragAnswer]
+    [remainingQuestions]
   );
 
-  const activeItem = currentDragQuiz.find((q) => q.id === activeId);
+  const activeItem = remainingQuestions.find((q) => q.id === activeId);
+  const totalQuestions = currentDragQuiz.length || (totalCorrect + totalWrong + remainingQuestions.length);
+
+  const zoneScores = (zone: string) => ({
+    correct: placedItems[zone]?.filter((i) => i.correct).length || 0,
+    wrong: placedItems[zone]?.filter((i) => !i.correct).length || 0,
+  });
 
   if (!dragQuizStarted || currentDragQuiz.length === 0) {
     return (
       <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="border-border/50">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="shadow-sm border-border/40">
             <CardContent className="pt-6 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                <GripVertical className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
+                <GripVertical className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-xl font-bold">Accounting Drag & Drop</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Classify accounting line items into the correct financial
-                statement. Drag each item to Income Statement, Cash Flow
-                Statement, Balance Sheet, or Multiple Statements.
+                Drag each accounting line item into the correct financial statement:
+                Income Statement, Balance Sheet, or Cash Flow Statement.
+                Wrong answers cost you points!
               </p>
               <div className="flex gap-3 justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push("/dashboard")}
-                >
+                <Button variant="outline" onClick={() => router.push("/dashboard")}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Dashboard
                 </Button>
-                <Button onClick={() => startDragQuiz()}>
+                <Button onClick={handleStart} className="gradient-primary text-white shadow-lg shadow-primary/20">
                   Start Challenge
                 </Button>
               </div>
@@ -219,52 +302,44 @@ export default function AccountingDragPage() {
     );
   }
 
-  if (dragQuizCompleted) {
-    let correct = 0;
-    currentDragQuiz.forEach((q) => {
-      if (dragAnswers[q.id] === q.correctAnswer) correct++;
-    });
-    const accuracy = Math.round((correct / currentDragQuiz.length) * 100);
+  if (isComplete) {
+    const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+    const netScore = totalCorrect - totalWrong;
 
     return (
-      <div className="max-w-3xl mx-auto space-y-6">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <Card className="border-border/50">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+          <Card className="shadow-sm border-border/40">
             <CardHeader className="text-center">
-              <Trophy
-                className={cn(
-                  "w-16 h-16 mx-auto mb-2",
-                  accuracy >= 75 ? "text-emerald-400" : "text-amber-400"
-                )}
-              />
-              <CardTitle className="text-2xl">
-                Drag & Drop Complete!
-              </CardTitle>
-              <p className="text-lg font-bold">
-                {correct}/{currentDragQuiz.length} Correct ({accuracy}%)
-              </p>
+              <Trophy className={cn("w-16 h-16 mx-auto mb-2", accuracy >= 75 ? "text-emerald-500" : "text-amber-500")} />
+              <CardTitle className="text-2xl">Challenge Complete!</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex gap-3 justify-center mb-6">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    resetDragQuiz();
-                    router.push("/dashboard");
-                  }}
-                >
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-4 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-emerald-600">{totalCorrect}</p>
+                  <p className="text-xs text-muted-foreground">Correct</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-red-500">{totalWrong}</p>
+                  <p className="text-xs text-muted-foreground">Wrong</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{netScore}</p>
+                  <p className="text-xs text-muted-foreground">Net Score</p>
+                </div>
+                <div>
+                  <p className={cn("text-2xl font-bold", accuracy >= 75 ? "text-emerald-600" : "text-amber-600")}>{accuracy}%</p>
+                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" onClick={() => { resetDragQuiz(); router.push("/dashboard"); }}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Dashboard
                 </Button>
-                <Button
-                  onClick={() => {
-                    resetDragQuiz();
-                    startDragQuiz();
-                  }}
-                >
+                <Button onClick={() => { resetDragQuiz(); handleStart(); }}>
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Try Again
                 </Button>
@@ -273,181 +348,114 @@ export default function AccountingDragPage() {
           </Card>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           <h3 className="font-semibold">Review</h3>
-          {currentDragQuiz.map((q) => {
-            const userAnswer = dragAnswers[q.id];
-            const isCorrect = userAnswer === q.correctAnswer;
-
-            return (
+          {Object.entries(placedItems).map(([zone, items]) =>
+            items.map((item) => (
               <Card
-                key={q.id}
+                key={item.id}
                 className={cn(
-                  "border-border/50",
-                  isCorrect
-                    ? "border-l-2 border-l-emerald-500"
-                    : "border-l-2 border-l-red-500"
+                  "shadow-sm border-border/40",
+                  item.correct ? "border-l-2 border-l-emerald-500" : "border-l-2 border-l-red-500"
                 )}
               >
-                <CardContent className="pt-4 space-y-2">
+                <CardContent className="pt-3 pb-3 space-y-1">
                   <div className="flex items-start gap-2">
-                    {isCorrect ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                    {item.correct ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+                      <XCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                     )}
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{q.lineItem}</p>
-                      <div className="mt-1 text-xs space-y-0.5">
-                        <p>
-                          <span className="text-muted-foreground">
-                            Your answer:{" "}
-                          </span>
-                          <span
-                            className={
-                              isCorrect
-                                ? "text-emerald-400"
-                                : "text-red-400"
-                            }
-                          >
-                            {userAnswer || "Not answered"}
-                          </span>
+                    <div>
+                      <p className="font-medium text-sm">{item.lineItem}</p>
+                      {!item.correct && (
+                        <p className="text-xs mt-0.5">
+                          <span className="text-muted-foreground">Dropped in: </span>
+                          <span className="text-red-500">{zone}</span>
+                          <span className="text-muted-foreground"> → Correct: </span>
+                          <span className="text-emerald-600">{item.correctAnswer}</span>
                         </p>
-                        {!isCorrect && (
-                          <p>
-                            <span className="text-muted-foreground">
-                              Correct:{" "}
-                            </span>
-                            <span className="text-emerald-400">
-                              {q.correctAnswer}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                      <div className="mt-2 p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground">
-                        {q.explanation}
-                      </div>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
+                        {item.explanation}
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            );
-          })}
-        </motion.div>
+            ))
+          )}
+        </div>
       </div>
     );
   }
 
-  const placedIds = new Set(Object.keys(dragAnswers));
-  const unplacedCount = currentDragQuiz.filter(
-    (q) => !placedIds.has(q.id)
-  ).length;
-  const progressPercent =
-    ((currentDragQuiz.length - unplacedCount) / currentDragQuiz.length) * 100;
-
-  const placedByZone: Record<string, { id: string; lineItem: string }[]> = {};
-  DROP_ZONES.forEach((z) => {
-    placedByZone[z] = [];
-  });
-  Object.entries(dragAnswers).forEach(([qId, zone]) => {
-    const q = currentDragQuiz.find((q) => q.id === qId);
-    if (q && placedByZone[zone]) {
-      placedByZone[zone].push({ id: q.id, lineItem: q.lineItem });
-    }
-  });
-
   return (
-    <div className="max-w-6xl mx-auto space-y-4">
+    <div className="max-w-7xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold">Classify Line Items</h2>
           <p className="text-xs text-muted-foreground">
-            Drag each item to the correct financial statement
+            Drag each item into the correct statement. Wrong = -1 point.
           </p>
         </div>
-        <Badge variant="secondary">
-          {currentDragQuiz.length - unplacedCount}/{currentDragQuiz.length}{" "}
-          placed
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            +{totalCorrect}
+          </Badge>
+          <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+            -{totalWrong}
+          </Badge>
+          <Badge variant="secondary">
+            {remainingQuestions.length} left
+          </Badge>
+        </div>
       </div>
-
-      <Progress value={progressPercent} className="h-1" />
 
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4">
-            <Card className="border-border/50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Line Items</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 max-h-[60vh] overflow-y-auto scrollbar-thin">
-                <AnimatePresence>
-                  {currentDragQuiz.map((q) => {
-                    const isPlaced = placedIds.has(q.id);
-                    return (
-                      <motion.div
-                        key={q.id}
-                        layout
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0, height: 0 }}
-                      >
-                        <DraggableItem question={q} isPlaced={isPlaced} />
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-                {unplacedCount === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    All items placed!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <Card className="shadow-sm border-border/40">
+            <CardHeader className="pb-2 pt-3">
+              <CardTitle className="text-xs">Line Items</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1.5 max-h-[65vh] overflow-y-auto scrollbar-thin pb-3">
+              <AnimatePresence>
+                {remainingQuestions.map((q) => (
+                  <motion.div key={q.id} layout exit={{ opacity: 0, x: -20, height: 0 }}>
+                    <DraggableItem question={q} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              {remainingQuestions.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-6">All placed!</p>
+              )}
+            </CardContent>
+          </Card>
 
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {DROP_ZONES.map((zone) => (
-              <DropZone
-                key={zone}
-                zone={zone}
-                placedItems={placedByZone[zone]}
-                isActive={activeId !== null}
-              />
-            ))}
-          </div>
+          {DROP_ZONES.map((zone) => (
+            <DropColumn
+              key={zone}
+              zone={zone}
+              placedItems={placedItems[zone]}
+              isActive={activeId !== null}
+              score={zoneScores(zone)}
+            />
+          ))}
         </div>
 
         <DragOverlay>
           {activeItem && (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-lg border border-primary/50 bg-card shadow-lg">
-              <GripVertical className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">
-                {activeItem.lineItem}
-              </span>
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-primary/50 bg-card shadow-xl text-xs">
+              <GripVertical className="w-3.5 h-3.5 text-primary" />
+              <span className="font-medium">{activeItem.lineItem}</span>
             </div>
           )}
         </DragOverlay>
       </DndContext>
-
-      <div className="flex justify-end pt-2">
-        <Button
-          onClick={() => completeDragQuiz()}
-          disabled={unplacedCount > 0}
-        >
-          <CheckCircle2 className="w-4 h-4 mr-2" />
-          Submit All ({currentDragQuiz.length - unplacedCount}/
-          {currentDragQuiz.length})
-        </Button>
-      </div>
     </div>
   );
 }

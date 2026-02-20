@@ -93,11 +93,6 @@ export default function DashboardPage() {
     router.push("/quiz");
   };
 
-  const handleStartMixedQuiz = () => {
-    startQuiz();
-    router.push("/quiz");
-  };
-
   return (
     <motion.div
       variants={container}
@@ -221,15 +216,15 @@ export default function DashboardPage() {
                   </Badge>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Button
-                  onClick={handleStartMixedQuiz}
+                  onClick={() => router.push("/quiz")}
                   className="h-auto py-4 flex-col gap-2 gradient-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
                   size="lg"
                 >
                   <BookOpen className="w-5 h-5" />
-                  <span className="text-xs font-normal opacity-90">20 Questions</span>
-                  Mixed Quiz
+                  <span className="text-xs font-normal opacity-90">30 / 400</span>
+                  IB Quiz
                 </Button>
                 <Button
                   onClick={() => router.push("/accounting-drag")}
@@ -249,7 +244,17 @@ export default function DashboardPage() {
                 >
                   <FlaskConical className="w-5 h-5 text-muted-foreground" />
                   <span className="text-xs font-normal text-muted-foreground">Learn</span>
-                  3-Statement Sim
+                  3-Stmt Sim
+                </Button>
+                <Button
+                  onClick={() => router.push("/dcf")}
+                  variant="outline"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm"
+                  size="lg"
+                >
+                  <Calculator className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-xs font-normal text-muted-foreground">Valuation</span>
+                  DCF Model
                 </Button>
               </div>
             </CardContent>

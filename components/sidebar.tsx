@@ -36,6 +36,7 @@ const navItems = [
   { href: "/quiz", label: "Quiz Engine", icon: BookOpen },
   { href: "/accounting-drag", label: "Drag & Drop", icon: GripVertical },
   { href: "/simulation", label: "3-Statement Sim", icon: FlaskConical },
+  { href: "/dcf", label: "DCF Model", icon: Calculator },
 ];
 
 const sections: { label: Section; icon: typeof Calculator }[] = [
