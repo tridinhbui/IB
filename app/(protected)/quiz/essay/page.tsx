@@ -21,7 +21,6 @@ import {
     ChevronDown,
     ChevronUp,
     Star,
-    Target,
     Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
