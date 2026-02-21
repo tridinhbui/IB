@@ -18,6 +18,8 @@ import {
   Shuffle,
   Sparkles,
   Bot,
+  ListChecks,
+  PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fitBehavioralQuestions } from "@/lib/questions/fit-behavioral";
@@ -60,8 +62,11 @@ function getRankLabel(accuracy: number) {
   return "Not Ready";
 }
 
+type QuizMode = "select" | "mc";
+
 export default function QuizPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<QuizMode>("select");
   const [questions, setQuestions] = useState<Question[]>(fitBehavioralQuestions);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -121,11 +126,93 @@ export default function QuizPage() {
     setFinished(false);
   }, []);
 
+  const handleBackToSelect = useCallback(() => {
+    setMode("select");
+    handleReset();
+  }, [handleReset]);
+
   const randomTip = useMemo(() => {
     const tips = TIPS["Fit & Behavioral"];
     return tips[Math.floor(Math.random() * tips.length)];
   }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // === MODE SELECTION SCREEN ===
+  if (mode === "select") {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+              <BookOpen className="w-6 h-6 text-primary" />
+              Quiz Engine
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Choose your practice mode to sharpen your IB interview skills
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* Multiple Choice Card */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Card
+                className="cursor-pointer shadow-sm border-border/40 hover:border-primary/40 hover:shadow-md transition-all h-full group"
+                onClick={() => setMode("mc")}
+              >
+                <CardContent className="pt-8 pb-8 flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+                    <ListChecks className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg">Trắc Nghiệm</h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Multiple Choice
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Answer multiple-choice questions covering Fit & Behavioral topics. Instant feedback with explanations.
+                  </p>
+                  <Badge variant="secondary" className="text-[10px]">
+                    {fitBehavioralQuestions.length} questions
+                  </Badge>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Essay Card */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Card
+                className="cursor-pointer shadow-sm border-border/40 hover:border-primary/40 hover:shadow-md transition-all h-full group"
+                onClick={() => router.push("/quiz/essay")}
+              >
+                <CardContent className="pt-8 pb-8 flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-shadow">
+                    <PenLine className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg">Tự Luận</h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Essay Mode
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Write free-form answers to real IB interview questions. AI-powered grading with detailed feedback.
+                  </p>
+                  <Badge variant="secondary" className="text-[10px]">
+                    AI Graded • 400+ questions
+                  </Badge>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // === FINISHED SCREEN (MC) ===
   if (finished) {
     return (
       <div className="max-w-2xl mx-auto space-y-6">
@@ -152,9 +239,9 @@ export default function QuizPage() {
                 </div>
               </div>
               <div className="flex gap-3 justify-center pt-2">
-                <Button variant="outline" onClick={() => router.push("/dashboard")}>
+                <Button variant="outline" onClick={handleBackToSelect}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Dashboard
+                  Quiz Selection
                 </Button>
                 <Button onClick={handleReset}>
                   <RotateCcw className="w-4 h-4 mr-2" />
@@ -172,6 +259,7 @@ export default function QuizPage() {
     );
   }
 
+  // === MC QUIZ ===
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <motion.div
@@ -197,6 +285,10 @@ export default function QuizPage() {
           </Badge>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShuffle} title="Shuffle questions">
             <Shuffle className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={handleBackToSelect}>
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Back
           </Button>
         </div>
       </motion.div>
