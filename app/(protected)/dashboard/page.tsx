@@ -219,7 +219,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Button
                   onClick={() => router.push("/quiz")}
-                  className="h-auto py-4 flex-col gap-2 font-varela font-bold bg-finstep-orange text-white hover:bg-finstep-brown shadow-lg shadow-finstep-orange/20 hover:shadow-finstep-brown/30 transition-all transform hover:-translate-y-0.5"
+                  className="h-auto py-4 flex-col gap-2 font-varela font-bold bg-finstep-orange text-white hover:brightness-110 shadow-lg shadow-finstep-orange/20 transition-all transform hover:-translate-y-0.5"
                   size="lg"
                 >
                   <BookOpen className="w-5 h-5" />
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push("/accounting-drag")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/20 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-beige hover:border-finstep-lightbrown"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
                   <GripVertical className="w-5 h-5 text-finstep-lightbrown" />
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push("/simulation")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/20 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-beige hover:border-finstep-lightbrown"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
                   <FlaskConical className="w-5 h-5 text-finstep-lightbrown" />
@@ -249,7 +249,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push("/dcf")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/20 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-beige hover:border-finstep-lightbrown"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
                   <Calculator className="w-5 h-5 text-finstep-lightbrown" />
