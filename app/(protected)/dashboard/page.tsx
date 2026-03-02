@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 import { Difficulty, Section } from "@/types/question";
 import { allQuestions } from "@/lib/questions";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 const container = {
   hidden: { opacity: 0 },
@@ -74,6 +76,7 @@ function getRankLabel(accuracy: number) {
 }
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const {
     difficulty,
@@ -101,11 +104,25 @@ export default function DashboardPage() {
       className="max-w-6xl mx-auto space-y-8 font-nunito text-finstep-brown"
     >
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-varela font-bold tracking-tight text-finstep-orange">
-            Welcome back
-          </h1>
-          <p className="text-finstep-lightbrown mt-1">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-varela font-bold tracking-tight text-finstep-orange">
+              Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ""}
+            </h1>
+            {session?.user?.image && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-finstep-beige border border-finstep-brown/10 shadow-sm">
+                <Image
+                  src={session.user.image}
+                  alt="Profile"
+                  width={20}
+                  height={20}
+                  className="rounded-full border border-finstep-orange/20"
+                />
+                <span className="text-[9px] font-nunito font-bold text-finstep-brown/40 uppercase tracking-tighter">Google</span>
+              </div>
+            )}
+          </div>
+          <p className="text-finstep-lightbrown font-medium">
             Track your progress and start training
           </p>
         </div>

@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuizStore } from "@/store/useQuizStore";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +56,7 @@ export function Sidebar() {
   const { eliteMode, setEliteMode, progress, getAccuracy } = useQuizStore();
   const accuracy = getAccuracy();
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
 
   return (
     <aside className="hidden lg:flex flex-col w-72 border-r border-finstep-brown/10 bg-finstep-beige/30 h-screen sticky top-0">
@@ -188,6 +191,25 @@ export function Sidebar() {
       </nav>
 
       <Separator className="opacity-20 bg-finstep-brown" />
+
+      {session?.user && (
+        <div className="p-4 flex items-center gap-3">
+          <Avatar className="w-10 h-10 border border-finstep-orange/20 shadow-sm">
+            <AvatarImage src={session.user.image || ""} />
+            <AvatarFallback className="bg-finstep-orange/10 text-finstep-orange font-bold">
+              {session.user.name?.[0] || session.user.email?.[0] || "?"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-bold text-finstep-brown truncate">
+              {session.user.name || "User"}
+            </span>
+            <span className="text-[10px] text-finstep-brown/40 font-semibold truncate">
+              {session.user.email}
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="p-3">
         <button
