@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuizStore } from "@/store/useQuizStore";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -54,17 +56,18 @@ export function Sidebar() {
   const { eliteMode, setEliteMode, progress, getAccuracy } = useQuizStore();
   const accuracy = getAccuracy();
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
 
   return (
-    <aside className="hidden lg:flex flex-col w-72 border-r border-border/40 bg-card/60 glass h-screen sticky top-0">
+    <aside className="hidden lg:flex flex-col w-72 border-r border-finstep-brown/10 bg-finstep-beige/30 h-screen sticky top-0">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+          <div className="w-10 h-10 rounded-xl bg-finstep-orange flex items-center justify-center shadow-lg shadow-finstep-orange/20 group-hover:shadow-finstep-orange/40 transition-shadow">
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-lg tracking-tight">IB400</h1>
-            <p className="text-xs text-muted-foreground">Pro Trainer</p>
+            <h1 className="font-varela font-bold text-lg tracking-tight text-finstep-brown">IB400</h1>
+            <p className="font-nunito text-xs text-finstep-brown/70 font-semibold">Pro Trainer</p>
           </div>
         </Link>
       </div>
@@ -81,10 +84,10 @@ export function Sidebar() {
               <motion.div
                 whileHover={{ x: 4 }}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-nunito font-semibold transition-all",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    ? "bg-finstep-orange text-white shadow-md shadow-finstep-orange/20"
+                    : "text-finstep-brown/70 hover:text-finstep-brown hover:bg-finstep-beige scrollbar-thin"
                 )}
               >
                 <item.icon className="w-4 h-4" />
@@ -94,9 +97,9 @@ export function Sidebar() {
           );
         })}
 
-        <Separator className="my-3 opacity-50" />
+        <Separator className="my-3 opacity-20 bg-finstep-brown" />
 
-        <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+        <p className="px-3 text-xs font-nunito font-bold text-finstep-brown/60 uppercase tracking-wider mb-2">
           Sections
         </p>
 
@@ -110,10 +113,10 @@ export function Sidebar() {
           return (
             <div
               key={section.label}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-muted-foreground"
+              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-finstep-brown/80 font-nunito font-medium"
             >
               <div className="flex items-center gap-2">
-                <section.icon className="w-3.5 h-3.5" />
+                <section.icon className="w-3.5 h-3.5 text-finstep-lightbrown" />
                 <span className="text-xs">{section.label}</span>
               </div>
               {sectionAcc !== null && (
@@ -128,71 +131,90 @@ export function Sidebar() {
           );
         })}
 
-        <Separator className="my-3 opacity-50" />
+        <Separator className="my-3 opacity-20 bg-finstep-brown" />
 
-        <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+        <p className="px-3 text-xs font-nunito font-bold text-finstep-brown/60 uppercase tracking-wider mb-2">
           Performance
         </p>
 
-        <div className="px-3 space-y-3">
+        <div className="px-3 space-y-3 font-nunito">
           <div>
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-muted-foreground">Overall Accuracy</span>
-              <span className="font-semibold">{accuracy}%</span>
+              <span className="text-finstep-brown/70 font-semibold">Overall Accuracy</span>
+              <span className="font-varela font-bold tabular-nums text-finstep-brown">{accuracy}%</span>
             </div>
-            <Progress value={accuracy} className="h-2" />
+            <Progress value={accuracy} className="h-2 bg-finstep-beige/50 [&>div]:bg-finstep-orange" />
           </div>
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Questions Done</span>
-            <span className="font-semibold">{progress.totalCompleted}</span>
+            <span className="text-finstep-brown/70 font-semibold">Questions Done</span>
+            <span className="font-varela font-bold tabular-nums text-finstep-brown">{progress.totalCompleted}</span>
           </div>
         </div>
 
-        <Separator className="my-3 opacity-50" />
+        <Separator className="my-3 opacity-20 bg-finstep-brown" />
 
-        <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+        <p className="px-3 text-xs font-nunito font-bold text-finstep-brown/60 uppercase tracking-wider mb-2">
           Settings
         </p>
 
-        <div className="px-3 space-y-3">
+        <div className="px-3 space-y-3 font-nunito">
           <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-sm font-medium">Elite Mode</span>
+            <div className="flex items-center gap-2 text-finstep-brown">
+              <Zap className="w-3.5 h-3.5 text-orange-500" />
+              <span className="text-sm font-bold">Elite Mode</span>
             </div>
             <Switch
               checked={eliteMode}
               onCheckedChange={setEliteMode}
-              className="scale-90"
+              className="scale-90 data-[state=checked]:bg-finstep-orange"
             />
           </div>
 
           <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-finstep-brown">
               {theme === "dark" ? (
                 <Moon className="w-3.5 h-3.5 text-blue-400" />
               ) : (
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
               )}
-              <span className="text-sm font-medium">Dark Mode</span>
+              <span className="text-sm font-bold">Dark Mode</span>
             </div>
             <Switch
               checked={theme === "dark"}
               onCheckedChange={(checked) =>
                 setTheme(checked ? "dark" : "light")
               }
-              className="scale-90"
+              className="scale-90 data-[state=checked]:bg-finstep-orange"
             />
           </div>
         </div>
       </nav>
 
-      <Separator className="opacity-50" />
+      <Separator className="opacity-20 bg-finstep-brown" />
+
+      {session?.user && (
+        <div className="p-4 flex items-center gap-3">
+          <Avatar className="w-10 h-10 border border-finstep-orange/20 shadow-sm">
+            <AvatarImage src={session.user.image || ""} />
+            <AvatarFallback className="bg-finstep-orange/10 text-finstep-orange font-bold">
+              {session.user.name?.[0] || session.user.email?.[0] || "?"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-bold text-finstep-brown truncate">
+              {session.user.name || "User"}
+            </span>
+            <span className="text-[10px] text-finstep-brown/40 font-semibold truncate">
+              {session.user.email}
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="p-3">
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-nunito font-bold text-finstep-brown/60 hover:text-red-500 hover:bg-red-50 transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />
           Sign Out

@@ -79,14 +79,14 @@ export function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-20 right-4 sm:right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/40 bg-card shadow-2xl shadow-black/10 overflow-hidden"
+            className="fixed bottom-20 right-4 sm:right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-finstep-brown/10 bg-card/95 backdrop-blur-md shadow-2xl shadow-finstep-orange/10 overflow-hidden font-nunito"
           >
-            <div className="gradient-primary px-4 py-3 flex items-center justify-between">
+            <div className="bg-finstep-orange px-4 py-3 flex items-center justify-between border-b border-finstep-brown/10">
               <div className="flex items-center gap-2 text-white">
                 <Bot className="w-5 h-5" />
                 <div>
-                  <p className="text-sm font-semibold">IB Prep Assistant</p>
-                  <p className="text-[10px] opacity-80">
+                  <p className="text-sm font-varela font-bold">IB Prep Assistant</p>
+                  <p className="text-[10px] font-semibold opacity-90">
                     Ask any IB technical question
                   </p>
                 </div>
@@ -94,7 +94,7 @@ export function Chatbot() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="text-white hover:bg-white/20 hover:text-white h-8 w-8"
                 onClick={() => setIsOpen(false)}
               >
                 <X className="w-4 h-4" />
@@ -114,16 +114,16 @@ export function Chatbot() {
                     )}
                   >
                     {msg.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-finstep-lightbrown flex items-center justify-center shrink-0">
                         <Sparkles className="w-3.5 h-3.5 text-white" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        "rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed max-w-[260px] whitespace-pre-wrap",
+                        "rounded-2xl px-3.5 py-2.5 text-xs font-semibold leading-relaxed max-w-[260px] whitespace-pre-wrap",
                         msg.role === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-muted rounded-bl-sm"
+                          ? "bg-finstep-orange text-white rounded-br-sm shadow-md shadow-finstep-orange/10"
+                          : "bg-finstep-beige/50 text-finstep-brown border border-finstep-brown/10 rounded-bl-sm"
                       )}
                     >
                       {msg.content.split(/\*\*(.*?)\*\*/g).map((part, j) =>
@@ -135,8 +135,8 @@ export function Chatbot() {
                       )}
                     </div>
                     {msg.role === "user" && (
-                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <User className="w-3.5 h-3.5 text-muted-foreground" />
+                      <div className="w-7 h-7 rounded-full bg-finstep-beige border border-finstep-brown/10 flex items-center justify-center shrink-0">
+                        <User className="w-3.5 h-3.5 text-finstep-brown" />
                       </div>
                     )}
                   </motion.div>
@@ -147,18 +147,18 @@ export function Chatbot() {
                     animate={{ opacity: 1 }}
                     className="flex gap-2"
                   >
-                    <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-finstep-lightbrown flex items-center justify-center shrink-0">
                       <Sparkles className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3">
+                    <div className="bg-finstep-beige/50 border border-finstep-brown/10 rounded-2xl rounded-bl-sm px-4 py-3">
                       <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" />
+                        <span className="w-1.5 h-1.5 bg-finstep-brown/40 rounded-full animate-bounce" />
                         <span
-                          className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"
+                          className="w-1.5 h-1.5 bg-finstep-brown/40 rounded-full animate-bounce"
                           style={{ animationDelay: "0.15s" }}
                         />
                         <span
-                          className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"
+                          className="w-1.5 h-1.5 bg-finstep-brown/40 rounded-full animate-bounce"
                           style={{ animationDelay: "0.3s" }}
                         />
                       </div>
@@ -168,7 +168,7 @@ export function Chatbot() {
               </div>
             </ScrollArea>
 
-            <div className="p-3 border-t border-border/40">
+            <div className="p-3 border-t border-finstep-brown/10 bg-card/50 backdrop-blur-sm">
               <div className="flex gap-2">
                 <Input
                   ref={inputRef}
@@ -176,13 +176,13 @@ export function Chatbot() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask about DCF, LBO, M&A..."
-                  className="text-xs shadow-sm"
+                  className="text-xs shadow-sm font-semibold border-finstep-brown/20 focus-visible:ring-finstep-orange text-finstep-brown"
                 />
                 <Button
                   size="icon"
                   onClick={handleSend}
                   disabled={!input.trim()}
-                  className="gradient-primary text-white shrink-0 shadow-md"
+                  className="bg-finstep-orange hover:bg-finstep-brown text-white shrink-0 shadow-md shadow-finstep-orange/20 transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </Button>
@@ -197,7 +197,7 @@ export function Chatbot() {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "fixed bottom-4 right-4 sm:right-6 z-50 w-14 h-14 rounded-full gradient-primary text-white shadow-xl shadow-primary/30 flex items-center justify-center transition-all",
+          "fixed bottom-4 right-4 sm:right-6 z-50 w-14 h-14 rounded-full bg-finstep-orange hover:bg-finstep-brown text-white shadow-xl shadow-finstep-orange/30 flex items-center justify-center transition-all",
           isOpen && "rotate-0"
         )}
       >

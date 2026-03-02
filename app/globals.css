@@ -10,25 +10,36 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --finstep-orange: 32 75% 61%;
+    /* #E5A152 */
+    --finstep-brown: 19 33% 36%;
+    /* #7A513E */
+    --finstep-lightbrown: 29 66% 56%;
+    /* #D98C44 */
+    --finstep-beige: 40 46% 96%;
+    /* #F9F6F0 */
+
+    --background: var(--finstep-beige);
+    --foreground: var(--finstep-brown);
+    --card: 40 46% 98%;
+    /* Even warmer/softer beige for cards */
+    --card-foreground: var(--finstep-brown);
+    --popover: 40 46% 98%;
+    --popover-foreground: var(--finstep-brown);
+    --primary: var(--finstep-orange);
+    --primary-foreground: 40 46% 96%;
+    --secondary: 40 30% 92%;
+    --secondary-foreground: var(--finstep-brown);
+    --muted: 40 30% 92%;
+    --muted-foreground: 19 15% 50%;
+    --accent: 40 30% 92%;
+    --accent-foreground: var(--finstep-brown);
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 19 25% 90%;
+    /* Warm subtle border instead of cold gray */
+    --input: 19 25% 90%;
+    --ring: var(--finstep-orange);
     --chart-1: 221 83% 53%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -38,27 +49,37 @@
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
   }
+
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 224 71% 6%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71% 6%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 217 10% 55%;
-    --accent: 215 28% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
+    --finstep-orange: 32 75% 61%;
+    /* Keep orange vibrant */
+    --finstep-brown: 40 46% 96%;
+    /* Invert: Brown text becomes Beige text */
+    --finstep-lightbrown: 29 80% 65%;
+    /* Brighten slightly for contrast */
+    --finstep-beige: 19 30% 12%;
+    /* Invert: Beige background becomes Dark Warm gray/brown */
+
+    --background: var(--finstep-beige);
+    --foreground: var(--finstep-brown);
+    --card: 19 30% 16%;
+    --card-foreground: var(--finstep-brown);
+    --popover: 19 30% 16%;
+    --popover-foreground: var(--finstep-brown);
+    --primary: var(--finstep-orange);
+    --primary-foreground: 19 30% 12%;
+    --secondary: 19 30% 20%;
+    --secondary-foreground: var(--finstep-brown);
+    --muted: 19 30% 20%;
+    --muted-foreground: 19 10% 65%;
+    --accent: 19 30% 20%;
+    --accent-foreground: var(--finstep-brown);
+    --destructive: 0 63% 40%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 217 91% 60%;
-    --chart-1: 217 91% 60%;
+    --border: 19 30% 22%;
+    --input: 19 30% 22%;
+    --ring: var(--finstep-orange);
+    --chart-1: var(--finstep-orange);
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
@@ -72,6 +93,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -82,26 +104,32 @@
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
+
   .glass {
     background: hsl(var(--card) / 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(250, 80%, 60%));
+    background: linear-gradient(135deg, hsl(32, 75%, 61%), hsl(29, 66%, 56%));
   }
+
   .gradient-text {
-    background: linear-gradient(135deg, hsl(221, 83%, 53%), hsl(250, 80%, 60%));
+    background: linear-gradient(135deg, hsl(32, 75%, 61%), hsl(29, 66%, 56%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
