@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, Target, TrendingUp } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-finstep-beige text-finstep-brown font-nunito selection:bg-finstep-orange/30 flex flex-col items-center">
+    <div className="min-h-screen bg-finstep-beige text-finstep-brown font-nunito selection:bg-finstep-orange/30 flex flex-col items-center overflow-x-hidden">
 
       {/* Navbar */}
       <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center absolute top-0 left-0 right-0 z-50">
@@ -33,7 +33,7 @@ export default function Home() {
       {/* Hero Section */}
       <main className="flex-1 w-full max-w-7xl mx-auto flex flex-col items-center justify-center px-6 pt-32 pb-20 text-center relative z-10">
         {/* Soft background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-finstep-orange/10 rounded-full blur-[100px] -z-10 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-finstep-orange/10 rounded-full blur-[80px] md:blur-[100px] -z-10 pointer-events-none" />
 
         {/* Main Headline */}
         <h1 className="font-varela font-bold text-5xl md:text-7xl lg:text-8xl tracking-tight leading-tight text-finstep-brown mb-6 max-w-5xl">
