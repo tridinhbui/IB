@@ -11,6 +11,12 @@ export type Section =
 
 export type Difficulty = "Beginner" | "Advanced" | "Elite";
 
+export interface IbQuestion {
+  category: string;
+  question: string;
+  answer: string;
+}
+
 export interface Question {
   id: string;
   section: Section;

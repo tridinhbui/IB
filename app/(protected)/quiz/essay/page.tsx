@@ -24,12 +24,9 @@ import {
     Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IbQuestion } from "@/types/question";
+import { useQuizStore } from "@/store/useQuizStore";
 
-interface IbQuestion {
-    category: string;
-    question: string;
-    answer: string;
-}
 
 interface GradeResult {
     score: number;
@@ -73,8 +70,6 @@ function getScoreLabel(score: number) {
 
 export default function EssayQuizPage() {
     const router = useRouter();
-    const [allQuestions, setAllQuestions] = useState<IbQuestion[]>([]);
-    const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [sessionQuestions, setSessionQuestions] = useState<IbQuestion[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -85,19 +80,26 @@ export default function EssayQuizPage() {
     const [answeredQuestions, setAnsweredQuestions] = useState<
         Record<number, AnsweredQuestion>
     >({});
+    const { essayQuestions: allQuestions, setEssayQuestions } = useQuizStore();
+    const [loading, setLoading] = useState(allQuestions.length === 0);
     const [finished, setFinished] = useState(false);
     const [showRefAnswer, setShowRefAnswer] = useState(false);
 
-    // Load questions from JSON
+    // Load questions from Database via API if cache is empty
     useEffect(() => {
-        fetch("/ib_questions.json")
+        if (allQuestions.length > 0) {
+            setLoading(false);
+            return;
+        }
+
+        fetch("/api/essay-questions")
             .then((res) => res.json())
             .then((data: IbQuestion[]) => {
-                setAllQuestions(data);
+                setEssayQuestions(data);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, []);
+    }, [allQuestions.length, setEssayQuestions]);
 
     const categories = useMemo(() => {
         const cats = new Set(allQuestions.map((q) => q.category));

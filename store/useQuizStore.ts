@@ -10,6 +10,7 @@ import {
   Rank,
   QuizResult,
   UserProgress,
+  IbQuestion,
 } from "@/types/question";
 import {
   getFilteredQuestions,
@@ -39,8 +40,11 @@ interface QuizState {
   timeRemaining: number;
   progress: UserProgress;
 
+  essayQuestions: IbQuestion[];
+
   setDifficulty: (d: Difficulty) => void;
   setEliteMode: (elite: boolean) => void;
+  setEssayQuestions: (questions: IbQuestion[]) => void;
   startQuiz: (section?: Section) => void;
   startDragQuiz: () => void;
   submitAnswer: (questionId: string, answer: string) => void;
@@ -79,10 +83,13 @@ export const useQuizStore = create<QuizState>()(
       dragQuizCompleted: false,
       timeRemaining: 1200,
       progress: defaultProgress,
+      essayQuestions: [],
 
       setDifficulty: (d) => set({ difficulty: d }),
 
       setEliteMode: (elite) => set({ eliteMode: elite }),
+
+      setEssayQuestions: (questions) => set({ essayQuestions: questions }),
 
       startQuiz: (section) => {
         const { difficulty, eliteMode } = get();
