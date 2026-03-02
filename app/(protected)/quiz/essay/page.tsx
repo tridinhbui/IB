@@ -223,7 +223,7 @@ export default function EssayQuizPage() {
     // Finished summary
     if (finished) {
         return (
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6 pb-20">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -231,54 +231,57 @@ export default function EssayQuizPage() {
                     <Card className="shadow-sm border-border/40">
                         <CardContent className="pt-8 pb-8 text-center space-y-6">
                             <Trophy
-                                className={cn("w-20 h-20 mx-auto", getScoreColor(avgScore))}
+                                className={cn("w-16 h-16 sm:w-20 sm:h-20 mx-auto", getScoreColor(avgScore))}
                             />
                             <div>
                                 <p
                                     className={cn(
-                                        "text-2xl font-bold",
+                                        "text-xl sm:text-2xl font-bold",
                                         getScoreColor(avgScore)
                                     )}
                                 >
                                     {getScoreLabel(avgScore)}
                                 </p>
-                                <p className="text-muted-foreground mt-1">
+                                <p className="text-sm text-muted-foreground mt-1">
                                     Average Score:{" "}
                                     <span className="font-bold text-foreground">
                                         {avgScore}/10
                                     </span>{" "}
-                                    across {answeredList.length} questions
+                                    <span className="hidden sm:inline">across {answeredList.length} questions</span>
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5 sm:hidden">
+                                    Across {answeredList.length} questions
                                 </p>
                             </div>
-                            <div className="flex gap-8 justify-center">
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold text-emerald-600 tabular-nums">
+                            <div className="flex flex-wrap gap-4 sm:gap-8 justify-center">
+                                <div className="text-center min-w-[70px]">
+                                    <p className="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums">
                                         {answeredList.filter((q) => q.grade.score >= 7).length}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">Strong (7+)</p>
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Strong</p>
                                 </div>
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold text-amber-500 tabular-nums">
+                                <div className="text-center min-w-[70px]">
+                                    <p className="text-2xl sm:text-3xl font-bold text-amber-500 tabular-nums">
                                         {
                                             answeredList.filter(
                                                 (q) => q.grade.score >= 4 && q.grade.score < 7
                                             ).length
                                         }
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Adequate (4-6)
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
+                                        Adequate
                                     </p>
                                 </div>
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold text-red-500 tabular-nums">
+                                <div className="text-center min-w-[70px]">
+                                    <p className="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">
                                         {answeredList.filter((q) => q.grade.score < 4).length}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Needs Work (&lt;4)
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">
+                                        Needs Work
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-3 justify-center pt-2">
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                                 <Button
                                     variant="outline"
                                     onClick={() => router.push("/quiz")}
@@ -332,7 +335,7 @@ export default function EssayQuizPage() {
     // Category selection
     if (!selectedCategory) {
         return (
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6 pb-20">
                 <motion.div
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -370,9 +373,9 @@ export default function EssayQuizPage() {
                                         className="shadow-sm border-border/40 cursor-pointer hover:bg-muted/40 hover:border-primary/30 transition-all"
                                         onClick={() => handleSelectCategory(cat)}
                                     >
-                                        <CardContent className="pt-4 pb-4 flex items-center justify-between">
+                                        <CardContent className="pt-4 pb-4 flex items-center justify-between gap-4">
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium truncate">{cat}</p>
+                                                <p className="text-sm font-medium leading-snug">{cat}</p>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Badge variant="secondary" className="text-[10px]">
@@ -396,71 +399,87 @@ export default function EssayQuizPage() {
     if (!question) return null;
 
     return (
-        <div className="max-w-2xl mx-auto space-y-5">
-            <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-            >
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-primary" />
-                        Tự Luận
-                    </h1>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                        Question {currentIndex + 1}/{sessionQuestions.length} •{" "}
-                        {selectedCategory}
-                    </p>
+        <div className="w-full max-w-2xl mx-auto space-y-6 pb-20 px-3 sm:px-0">
+            {/* Header Section */}
+            <div className="pt-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="w-5 h-5 text-primary shrink-0" />
+                            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                                Tự Luận
+                            </h1>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                            {selectedCategory}
+                        </p>
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleReset}
+                        className="w-full sm:w-auto h-9 text-xs font-semibold border-border/60 hover:bg-muted/50"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Categories
+                    </Button>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex items-center justify-between py-2 border-y border-border/5">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        Question {currentIndex + 1} of {sessionQuestions.length}
+                    </p>
                     {answeredList.length > 0 && (
-                        <Badge variant="secondary" className="tabular-nums text-xs">
+                        <Badge variant="secondary" className="tabular-nums font-bold">
                             Avg: {avgScore}/10
                         </Badge>
                     )}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-xs"
-                        onClick={handleReset}
-                    >
-                        <ArrowLeft className="w-3 h-3 mr-1" />
-                        Categories
-                    </Button>
                 </div>
-            </motion.div>
+            </div>
 
-            <Progress
-                value={((currentIndex + 1) / sessionQuestions.length) * 100}
-                className="h-2"
-            />
+            <div className="bg-background/95 backdrop-blur-sm pb-2 pt-1 border-b border-border/10 mb-2">
+                <Progress
+                    value={((currentIndex + 1) / sessionQuestions.length) * 100}
+                    className="h-1.5 mb-4"
+                />
 
-            {/* Question navigation dots — clickable */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-                {sessionQuestions.map((_, i) => {
-                    const answered = answeredQuestions[i];
-                    return (
-                        <button
-                            key={i}
-                            onClick={() => handleJumpTo(i)}
-                            title={`Question ${i + 1}${answered ? ` — Score: ${answered.grade.score}/10` : " (unanswered)"}`}
-                            className={cn(
-                                "w-7 h-7 rounded-md text-[10px] font-bold shrink-0 transition-all flex items-center justify-center",
-                                i === currentIndex
-                                    ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30"
-                                    : answered
-                                        ? answered.grade.score >= 7
-                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:opacity-80"
-                                            : answered.grade.score >= 4
-                                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:opacity-80"
-                                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:opacity-80"
-                                        : "bg-muted text-muted-foreground hover:bg-muted/70"
-                            )}
-                        >
-                            {answered ? answered.grade.score : i + 1}
-                        </button>
-                    );
-                })}
+                <div className="flex gap-1.5 overflow-x-auto pb-2 px-1 scrollbar-none">
+                    {sessionQuestions.map((_, i) => {
+                        const answered = answeredQuestions[i];
+
+                        // Limit rendering for large sets
+                        if (sessionQuestions.length > 20) {
+                            const inRange = i >= currentIndex - 10 && i <= currentIndex + 10;
+                            if (!inRange && i !== 0 && i !== sessionQuestions.length - 1) return null;
+                            if (!inRange && i === 0 && currentIndex > 11) return <span key="start-dots" className="text-xs text-muted-foreground self-center px-1">...</span>;
+                            if (!inRange && i === sessionQuestions.length - 1 && currentIndex < sessionQuestions.length - 12) return <span key="end-dots" className="text-xs text-muted-foreground self-center px-1">...</span>;
+                        }
+
+                        return (
+                            <button
+                                key={i}
+                                id={`q-dot-${i}`}
+                                onClick={() => handleJumpTo(i)}
+                                title={`Question ${i + 1}${answered ? ` — Score: ${answered.grade.score}/10` : " (unanswered)"}`}
+                                className={cn(
+                                    "w-8 h-8 rounded-lg text-[10px] sm:text-xs font-bold shrink-0 transition-all flex items-center justify-center",
+                                    i === currentIndex
+                                        ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30 scale-110"
+                                        : answered
+                                            ? answered.grade.score >= 7
+                                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:opacity-80"
+                                                : answered.grade.score >= 4
+                                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:opacity-80"
+                                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 hover:opacity-80"
+                                            : "bg-muted text-muted-foreground hover:bg-muted/70"
+                                )}
+                            >
+                                {answered ? answered.grade.score : i + 1}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
 
             <AnimatePresence mode="wait">
@@ -479,7 +498,7 @@ export default function EssayQuizPage() {
                                 <Badge className="gradient-primary text-white text-[10px] px-2 py-0.5 shrink-0 tabular-nums">
                                     {currentIndex + 1}/{sessionQuestions.length}
                                 </Badge>
-                                <p className="text-sm font-medium leading-relaxed flex-1">
+                                <p className="text-sm font-medium leading-relaxed flex-1 break-words overflow-wrap-anywhere">
                                     {question.question}
                                 </p>
                             </div>
@@ -494,7 +513,7 @@ export default function EssayQuizPage() {
                                         className="w-full min-h-[150px] p-4 rounded-xl border border-border/40 bg-background text-sm leading-relaxed placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-y transition-all"
                                         disabled={grading}
                                     />
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                         <p className="text-[11px] text-muted-foreground">
                                             {userAnswer.length > 0
                                                 ? `${userAnswer.split(/\s+/).filter(Boolean).length} words`
@@ -503,7 +522,7 @@ export default function EssayQuizPage() {
                                         <Button
                                             onClick={handleSubmitAnswer}
                                             disabled={!userAnswer.trim() || grading}
-                                            className="gradient-primary text-white shadow-md shadow-primary/20"
+                                            className="gradient-primary text-white shadow-md shadow-primary/20 w-full sm:w-auto"
                                             size="sm"
                                         >
                                             {grading ? (
@@ -547,35 +566,35 @@ export default function EssayQuizPage() {
                                 >
                                     <CardContent className="pt-5 pb-5 space-y-4">
                                         {/* Score header */}
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                                             <div
                                                 className={cn(
-                                                    "w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2",
+                                                    "w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center border-2 shrink-0 self-start sm:self-center",
                                                     getScoreBg(currentGrade.score)
                                                 )}
                                             >
                                                 <span
                                                     className={cn(
-                                                        "text-2xl font-bold",
+                                                        "text-xl sm:text-2xl font-bold",
                                                         getScoreColor(currentGrade.score)
                                                     )}
                                                 >
                                                     {currentGrade.score}
                                                 </span>
-                                                <span className="text-[9px] text-muted-foreground">
+                                                <span className="text-[8px] sm:text-[9px] text-muted-foreground font-medium uppercase">
                                                     /10
                                                 </span>
                                             </div>
-                                            <div className="flex-1">
+                                            <div className="flex-1 min-w-0">
                                                 <p
                                                     className={cn(
-                                                        "font-bold text-lg",
+                                                        "font-bold text-base sm:text-lg",
                                                         getScoreColor(currentGrade.score)
                                                     )}
                                                 >
                                                     {getScoreLabel(currentGrade.score)}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 leading-relaxed">
                                                     {currentGrade.summary}
                                                 </p>
                                             </div>
@@ -725,6 +744,6 @@ export default function EssayQuizPage() {
                     </AnimatePresence>
                 </motion.div>
             </AnimatePresence>
-        </div>
+        </div >
     );
 }

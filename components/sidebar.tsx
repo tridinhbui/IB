@@ -59,7 +59,7 @@ export function Sidebar() {
   const { data: session } = useSession();
 
   return (
-    <aside className="hidden lg:flex flex-col w-72 border-r border-finstep-brown/10 bg-finstep-beige/30 h-screen sticky top-0">
+    <aside className="flex flex-col w-full bg-finstep-beige/30 h-screen sticky top-0">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl bg-finstep-orange flex items-center justify-center shadow-lg shadow-finstep-orange/20 group-hover:shadow-finstep-orange/40 transition-shadow">

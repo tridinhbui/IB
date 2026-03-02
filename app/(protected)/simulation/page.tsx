@@ -462,18 +462,18 @@ export default function SimulationPage() {
                 {(selectedEvent === "depreciation" ||
                   selectedEvent === "buy_ppe_cash" ||
                   selectedEvent === "buy_ppe_debt") && (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-medium">Useful Life (yrs)</Label>
-                    <Input
-                      type="number"
-                      value={usefulLife}
-                      onChange={(e) => setUsefulLife(Number(e.target.value))}
-                      className="h-9 text-sm"
-                      min={1}
-                      disabled={stepping}
-                    />
-                  </div>
-                )}
+                    <div className="space-y-1">
+                      <Label className="text-xs font-medium">Useful Life (yrs)</Label>
+                      <Input
+                        type="number"
+                        value={usefulLife}
+                        onChange={(e) => setUsefulLife(Number(e.target.value))}
+                        className="h-9 text-sm"
+                        min={1}
+                        disabled={stepping}
+                      />
+                    </div>
+                  )}
               </div>
 
               <Separator />
@@ -601,7 +601,7 @@ export default function SimulationPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <StatementCard
                   title="Income Statement"
                   color="bg-blue-500"

@@ -219,26 +219,26 @@ export default function QuizPage() {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           <Card className="shadow-sm border-border/40">
             <CardContent className="pt-8 pb-8 text-center space-y-6">
-              <Trophy className={cn("w-20 h-20 mx-auto", getRankColor(stats.accuracy))} />
+              <Trophy className={cn("w-16 h-16 sm:w-20 sm:h-20 mx-auto", getRankColor(stats.accuracy))} />
               <div>
-                <p className={cn("text-2xl font-bold", getRankColor(stats.accuracy))}>
+                <p className={cn("text-xl sm:text-2xl font-bold", getRankColor(stats.accuracy))}>
                   {getRankLabel(stats.accuracy)}
                 </p>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {stats.correct} / {stats.total} correct — {stats.accuracy}%
                 </p>
               </div>
-              <div className="flex gap-8 justify-center">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-emerald-600 tabular-nums">{stats.correct}</p>
-                  <p className="text-xs text-muted-foreground">Correct</p>
+              <div className="flex flex-wrap gap-4 sm:gap-8 justify-center">
+                <div className="text-center min-w-[80px]">
+                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums">{stats.correct}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Correct</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-red-500 tabular-nums">{stats.answered - stats.correct}</p>
-                  <p className="text-xs text-muted-foreground">Wrong</p>
+                <div className="text-center min-w-[80px]">
+                  <p className="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">{stats.answered - stats.correct}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Wrong</p>
                 </div>
               </div>
-              <div className="flex gap-3 justify-center pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                 <Button variant="outline" onClick={handleBackToSelect}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Quiz Selection
@@ -261,64 +261,111 @@ export default function QuizPage() {
 
   // === MC QUIZ ===
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-      >
-        <div>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
-            IB 400 — Fit & Behavioral
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Question {currentIndex + 1}/{TOTAL_IB400}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant="secondary"
-            className="tabular-nums text-xs"
+    <div className="w-full max-w-2xl mx-auto space-y-6 pb-20 px-3 sm:px-0">
+      {/* Header Section */}
+      <div className="pt-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary shrink-0" />
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                IB 400 — Fit & Behavioral
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">✨ Master your behavioral questions</p>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBackToSelect}
+            className="w-full sm:w-auto h-9 text-xs font-semibold border-border/60 hover:bg-muted/50"
           >
-            {stats.correct}/{stats.answered} correct
-          </Badge>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShuffle} title="Shuffle questions">
-            <Shuffle className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={handleBackToSelect}>
-            <ArrowLeft className="w-3 h-3 mr-1" />
-            Back
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Selection
           </Button>
         </div>
-      </motion.div>
 
-      <Progress value={((currentIndex + 1) / questions.length) * 100} className="h-2" />
+        <div className="flex items-center justify-between py-2 border-y border-border/5">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            Question {currentIndex + 1} of {questions.length}
+          </p>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="tabular-nums font-bold">
+              {stats.correct}/{stats.answered} Correct
+            </Badge>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={handleShuffle} title="Shuffle questions">
+              <Shuffle className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-        {questions.map((_, i) => {
-          const qId = questions[i].id;
-          const answered = !!answers[qId];
-          const correct = answered && answers[qId]?.trim().toLowerCase() === questions[i].correctAnswer.trim().toLowerCase();
-          return (
-            <button
-              key={i}
-              onClick={() => setCurrentIndex(i)}
-              className={cn(
-                "w-7 h-7 rounded-md text-[10px] font-bold shrink-0 transition-all",
-                i === currentIndex
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : answered
-                    ? correct
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                    : "bg-muted text-muted-foreground"
-              )}
-            >
-              {i + 1}
-            </button>
-          );
-        })}
+      <div className="bg-background/95 backdrop-blur-sm pb-2 pt-1 border-b border-border/10 mb-2">
+        <Progress value={((currentIndex + 1) / questions.length) * 100} className="h-1.5 mb-4" />
+
+        <div className="flex gap-1.5 overflow-x-auto pb-2 px-1 scrollbar-none">
+          {questions.length > 20 ? (
+            // For large sets, only show range around current
+            questions.map((_, i) => {
+              const qId = questions[i].id;
+              const answered = !!answers[qId];
+              const correct = answered && answers[qId]?.trim().toLowerCase() === questions[i].correctAnswer.trim().toLowerCase();
+
+              // Only show if within range (e.g., current +/- 10)
+              const inRange = i >= currentIndex - 10 && i <= currentIndex + 10;
+              if (!inRange && i !== 0 && i !== questions.length - 1) return null;
+
+              if (!inRange && i === 0 && currentIndex > 11) return <span key="start-dots" className="text-xs text-muted-foreground self-center px-1">...</span>;
+              if (!inRange && i === questions.length - 1 && currentIndex < questions.length - 12) return <span key="end-dots" className="text-xs text-muted-foreground self-center px-1">...</span>;
+
+              return (
+                <button
+                  key={i}
+                  id={`q-dot-${i}`}
+                  onClick={() => setCurrentIndex(i)}
+                  className={cn(
+                    "w-8 h-8 rounded-lg text-[10px] sm:text-xs font-bold shrink-0 transition-all flex items-center justify-center",
+                    i === currentIndex
+                      ? "bg-primary text-primary-foreground shadow-md scale-110"
+                      : answered
+                        ? correct
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  {i + 1}
+                </button>
+              );
+            })
+          ) : (
+            questions.map((_, i) => {
+              const qId = questions[i].id;
+              const answered = !!answers[qId];
+              const correct = answered && answers[qId]?.trim().toLowerCase() === questions[i].correctAnswer.trim().toLowerCase();
+              return (
+                <button
+                  key={i}
+                  id={`q-dot-${i}`}
+                  onClick={() => setCurrentIndex(i)}
+                  className={cn(
+                    "w-8 h-8 rounded-lg text-[10px] sm:text-xs font-bold shrink-0 transition-all flex items-center justify-center",
+                    i === currentIndex
+                      ? "bg-primary text-primary-foreground shadow-md scale-110"
+                      : answered
+                        ? correct
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {i + 1}
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
 
       <AnimatePresence mode="wait">
@@ -337,7 +384,7 @@ export default function QuizPage() {
                   <Badge className="gradient-primary text-white text-[10px] px-2 py-0.5 shrink-0 tabular-nums">
                     {currentIndex + 1}/{TOTAL_IB400}
                   </Badge>
-                  <p className="text-sm font-medium leading-relaxed flex-1">
+                  <p className="text-sm font-medium leading-relaxed flex-1 break-words overflow-wrap-anywhere overflow-hidden">
                     {question.question}
                   </p>
                 </div>
@@ -407,7 +454,7 @@ export default function QuizPage() {
                     )}
                   >
                     <CardContent className="pt-4 pb-4 space-y-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                         <div
                           className={cn(
                             "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
@@ -422,12 +469,12 @@ export default function QuizPage() {
                             <XCircle className="w-5 h-5 text-red-500" />
                           )}
                         </div>
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <p className={cn("font-bold text-sm", isCorrect ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                             {isCorrect ? "Correct!" : "Incorrect"}
                           </p>
                           {isWrong && (
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug">
                               The answer is: <strong className="text-foreground">{question.correctAnswer}</strong>
                             </p>
                           )}
