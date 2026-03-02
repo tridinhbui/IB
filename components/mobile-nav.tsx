@@ -42,7 +42,7 @@ export function MobileNav() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="lg:hidden sticky top-0 z-50 glass border-b border-border/40">
+    <div className="xl:hidden sticky top-0 z-50 glass border-b border-border/40">
       <div className="flex items-center justify-between p-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-md shadow-primary/20">
