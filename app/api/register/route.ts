@@ -38,7 +38,7 @@ export async function POST(req: Request) {
                 email: user.email,
             },
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("REGISTRATION_ERROR", error);
         return new NextResponse("Internal Server Error", { status: 500 });
     }

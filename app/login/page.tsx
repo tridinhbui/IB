@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { TrendingUp, Lock, Mail, AlertCircle } from "lucide-react";
+import { Lock, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -170,7 +170,7 @@ export default function LoginPage() {
             </Button>
 
             <p className="text-center text-sm text-finstep-brown/70 mt-4 font-nunito font-semibold">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/register"
                 className="text-finstep-orange hover:text-finstep-orange/80 transition-colors underline underline-offset-4"
