@@ -81,16 +81,20 @@ export default function QuizPage() {
 
   const stats = useMemo(() => {
     let correct = 0;
+    const answered = Object.keys(answers).length;
     questions.forEach((q) => {
       if (answers[q.id]?.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
         correct++;
       }
     });
+    const incorrect = answered - correct;
     return {
       correct,
-      answered: Object.keys(answers).length,
+      incorrect,
+      answered,
       total: questions.length,
-      accuracy: Object.keys(answers).length > 0 ? Math.round((correct / Object.keys(answers).length) * 100) : 0,
+      accuracy: answered > 0 ? Math.round((correct / answered) * 100) : 0,
+      incorrectPercent: answered > 0 ? Math.round((incorrect / answered) * 100) : 0,
     };
   }, [answers, questions]);
 
@@ -224,18 +228,18 @@ export default function QuizPage() {
                 <p className={cn("text-xl sm:text-2xl font-bold", getRankColor(stats.accuracy))}>
                   {getRankLabel(stats.accuracy)}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {stats.correct} / {stats.total} correct — {stats.accuracy}%
+                <p className="text-muted-foreground mt-1">
+                  {stats.correct} / {stats.total} correct — {stats.accuracy}% correct, {stats.incorrectPercent}% incorrect
                 </p>
               </div>
-              <div className="flex flex-wrap gap-4 sm:gap-8 justify-center">
-                <div className="text-center min-w-[80px]">
-                  <p className="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums">{stats.correct}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Correct</p>
+              <div className="flex gap-8 justify-center">
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-emerald-600 tabular-nums">{stats.correct} ({stats.accuracy}%)</p>
+                  <p className="text-xs text-muted-foreground">Correct</p>
                 </div>
-                <div className="text-center min-w-[80px]">
-                  <p className="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">{stats.answered - stats.correct}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Wrong</p>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-red-500 tabular-nums">{stats.incorrect} ({stats.incorrectPercent}%)</p>
+                  <p className="text-xs text-muted-foreground">Wrong</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -281,8 +285,14 @@ export default function QuizPage() {
             onClick={handleBackToSelect}
             className="w-full sm:w-auto h-9 text-xs font-semibold border-border/60 hover:bg-muted/50"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Selection
+            {stats.correct}/{stats.answered} ({stats.accuracy}%)
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShuffle} title="Shuffle questions">
+            <Shuffle className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={handleBackToSelect}>
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Back
           </Button>
         </div>
 
