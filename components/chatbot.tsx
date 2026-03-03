@@ -197,7 +197,7 @@ export function Chatbot() {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "fixed bottom-4 right-4 sm:right-6 z-50 w-14 h-14 rounded-full bg-finstep-orange hover:bg-finstep-brown text-white shadow-xl shadow-finstep-orange/30 flex items-center justify-center transition-all",
+          "fixed bottom-4 right-4 sm:right-6 z-50 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-finstep-orange hover:bg-finstep-brown text-white shadow-xl shadow-finstep-orange/30 flex items-center justify-center transition-all",
           isOpen && "rotate-0"
         )}
       >
@@ -209,7 +209,7 @@ export function Chatbot() {
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: 90, opacity: 0 }}
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.div>
           ) : (
             <motion.div
@@ -218,7 +218,7 @@ export function Chatbot() {
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
             >
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.div>
           )}
         </AnimatePresence>
