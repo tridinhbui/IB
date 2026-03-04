@@ -6,7 +6,6 @@ import { useQuizStore } from "@/store/useQuizStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -320,11 +319,13 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {sectionConfigs.map((section) => {
-            const stats = progress.sectionStats[section.label];
-            const sectionAcc =
-              stats && stats.total > 0
-                ? Math.round((stats.correct / stats.total) * 100)
-                : 0;
+            const lastQuizWithSection = progress.quizHistory
+              .filter((r) => r.sectionBreakdown[section.label] && r.sectionBreakdown[section.label].total > 0)
+              .sort((a, b) => b.timestamp - a.timestamp)[0];
+            const sectionData = lastQuizWithSection?.sectionBreakdown[section.label];
+            const lastAttemptAcc = sectionData
+              ? Math.round((sectionData.correct / sectionData.total) * 100)
+              : null;
             const questionCount = allQuestions.filter(
               (q) => q.section === section.label
             ).length;
@@ -350,18 +351,18 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1.5">
-                          <span className="text-finstep-brown/60">Accuracy</span>
-                          <span className="font-varela font-bold tabular-nums text-finstep-brown">{sectionAcc}%</span>
-                        </div>
-                        <Progress value={sectionAcc} className="h-2 bg-finstep-beige [&>div]:bg-finstep-orange" />
+                      <div className="text-center py-2">
+                        {lastAttemptAcc !== null ? (
+                          <div>
+                            <p className="text-4xl font-varela font-bold text-finstep-brown">
+                              {lastAttemptAcc}%
+                            </p>
+                            <p className="text-xs text-finstep-brown/60 font-medium mt-1">Last Attempt</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-finstep-brown/60">No attempts yet</p>
+                        )}
                       </div>
-                      {stats && (
-                        <p className="text-xs text-finstep-brown/60">
-                          {stats.correct}/{stats.total} correct
-                        </p>
-                      )}
                       <Button
                         onClick={() => handleStartSectionQuiz(section.label)}
                         variant="ghost"

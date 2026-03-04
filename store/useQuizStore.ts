@@ -38,6 +38,7 @@ interface QuizState {
   dragQuizStarted: boolean;
   dragQuizCompleted: boolean;
   timeRemaining: number;
+  currentSection: Section | null;
   progress: UserProgress;
 
   essayQuestions: IbQuestion[];
@@ -58,6 +59,7 @@ interface QuizState {
   resetDragQuiz: () => void;
   getWeakestSection: () => string;
   getAccuracy: () => number;
+  saveQuizResult: (result: QuizResult) => void;
 }
 
 const defaultProgress: UserProgress = {
@@ -82,6 +84,7 @@ export const useQuizStore = create<QuizState>()(
       dragQuizStarted: false,
       dragQuizCompleted: false,
       timeRemaining: 1200,
+      currentSection: null,
       progress: defaultProgress,
       essayQuestions: [],
 
@@ -102,6 +105,7 @@ export const useQuizStore = create<QuizState>()(
           quizStarted: true,
           quizCompleted: false,
           timeRemaining: 1200,
+          currentSection: section || null,
         });
       },
 
@@ -170,9 +174,10 @@ export const useQuizStore = create<QuizState>()(
             ? Math.round((correct / currentQuiz.length) * 100)
             : 0;
 
+        const { currentSection } = get();
         const result: QuizResult = {
           id: Date.now().toString(),
-          section: "Mixed",
+          section: currentSection || "Mixed",
           difficulty,
           score: correct,
           total: currentQuiz.length,
@@ -238,6 +243,7 @@ export const useQuizStore = create<QuizState>()(
           quizStarted: false,
           quizCompleted: false,
           timeRemaining: 1200,
+          currentSection: null,
         }),
 
       resetDragQuiz: () =>
@@ -272,6 +278,28 @@ export const useQuizStore = create<QuizState>()(
         return Math.round(
           (progress.totalCorrect / progress.totalCompleted) * 100
         );
+      },
+
+      saveQuizResult: (result: QuizResult) => {
+        const { progress } = get();
+        
+        const newSectionStats = { ...progress.sectionStats };
+        Object.entries(result.sectionBreakdown).forEach(([sec, data]) => {
+          if (!newSectionStats[sec]) {
+            newSectionStats[sec] = { correct: 0, total: 0 };
+          }
+          newSectionStats[sec].correct += data.correct;
+          newSectionStats[sec].total += data.total;
+        });
+
+        set({
+          progress: {
+            totalCompleted: progress.totalCompleted + result.total,
+            totalCorrect: progress.totalCorrect + result.score,
+            sectionStats: newSectionStats,
+            quizHistory: [...progress.quizHistory, result],
+          },
+        });
       },
     }),
     {

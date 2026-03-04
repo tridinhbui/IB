@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,7 +23,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fitBehavioralQuestions } from "@/lib/questions/fit-behavioral";
-import { Question } from "@/types/question";
+import { Question, QuizResult } from "@/types/question";
+import { useQuizStore } from "@/store/useQuizStore";
 
 const TOTAL_IB400 = 400;
 
@@ -66,12 +67,14 @@ type QuizMode = "select" | "mc";
 
 export default function QuizPage() {
   const router = useRouter();
+  const { saveQuizResult, difficulty } = useQuizStore();
   const [mode, setMode] = useState<QuizMode>("select");
   const [questions, setQuestions] = useState<Question[]>(fitBehavioralQuestions);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
   const question = questions[currentIndex];
   const userAnswer = question ? answers[question.id] : undefined;
@@ -97,6 +100,27 @@ export default function QuizPage() {
       incorrectPercent: answered > 0 ? Math.round((incorrect / answered) * 100) : 0,
     };
   }, [answers, questions]);
+
+  useEffect(() => {
+    if (finished && !hasSaved && stats.answered > 0) {
+      const sectionBreakdown: Record<string, { correct: number; total: number }> = {
+        "Fit & Behavioral": { correct: stats.correct, total: stats.answered }
+      };
+      const result: QuizResult = {
+        id: Date.now().toString(),
+        section: "Fit & Behavioral",
+        difficulty,
+        score: stats.correct,
+        total: stats.answered,
+        accuracy: stats.accuracy,
+        rank: getRankLabel(stats.accuracy) as any,
+        timestamp: Date.now(),
+        sectionBreakdown,
+      };
+      saveQuizResult(result);
+      setHasSaved(true);
+    }
+  }, [finished, hasSaved, stats, difficulty, saveQuizResult]);
 
   const handleSelect = useCallback(
     (choice: string) => {
@@ -128,10 +152,12 @@ export default function QuizPage() {
     setAnswers({});
     setRevealed({});
     setFinished(false);
+    setHasSaved(false);
   }, []);
 
   const handleBackToSelect = useCallback(() => {
     setMode("select");
+    setHasSaved(false);
     handleReset();
   }, [handleReset]);
 
