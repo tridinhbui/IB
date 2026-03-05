@@ -22,13 +22,11 @@ import {
   PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fitBehavioralQuestions } from "@/lib/questions/fit-behavioral";
-import { allQuestions as localAllQuestions } from "@/lib/questions";
 import { Question, Section } from "@/types/question";
 import { useQuizStore } from "@/store/useQuizStore";
 import { Calculator, Building2, DollarSign, Scale, BarChart3, Percent, Users, Loader2 } from "lucide-react";
 
-const TOTAL_IB400 = 400;
+
 
 const TIPS: Record<string, string[]> = {
   "Fit & Behavioral": [
@@ -89,7 +87,6 @@ export default function QuizPage() {
     startQuiz,
     submitAnswer: storeSubmitAnswer,
     completeQuiz,
-    fetchDBAnalytics,
     fetchAllTechnicalQuestions,
   } = useQuizStore();
   const [loading, setLoading] = useState(allTechnicalQuestions.length === 0);
@@ -101,7 +98,7 @@ export default function QuizPage() {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
-  const [dbSections, setDbSections] = useState<any[]>([]);
+  const [dbSections, setDbSections] = useState<{ section: string; accuracy: number; questionsDone: number }[]>([]);
 
   const fetchProgress = useCallback(() => {
     fetch('/api/quiz-progress')
@@ -209,11 +206,7 @@ export default function QuizPage() {
     setFinished(false);
   }, []);
 
-  const handleBackToSelect = useCallback(() => {
-    setMode("select");
-    fetchProgress();
-    handleReset();
-  }, [handleReset, fetchProgress]);
+
 
   const randomTip = useMemo(() => {
     const tips = TIPS[selectedSection] || TIPS["Fit & Behavioral"];
@@ -330,8 +323,8 @@ export default function QuizPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {sectionConfigs.map((section, index) => {
               const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
-              const questionCount = safeQuestions.filter(q => q.section === section.label).length;
-              const sectionDb = dbSections.find(s => s.section === section.label);
+              const questionCount = safeQuestions.filter((q: Question) => q.section === section.label).length;
+              const sectionDb = dbSections.find((s: { section: string; accuracy: number; questionsDone: number }) => s.section === section.label);
               const displayAccuracy = sectionDb ? `${sectionDb.accuracy}%` : "0%";
 
               return (
@@ -357,8 +350,8 @@ export default function QuizPage() {
                             {questionCount} questions
                           </Badge>
                           <Badge variant="outline" className={cn("text-[10px] px-2 py-0",
-                            sectionDb?.accuracy >= 80 ? "text-emerald-600 border-emerald-200 bg-emerald-50" :
-                              sectionDb?.accuracy >= 50 ? "text-amber-600 border-amber-200 bg-amber-50" :
+                            (sectionDb?.accuracy ?? -1) >= 80 ? "text-emerald-600 border-emerald-200 bg-emerald-50" :
+                              (sectionDb?.accuracy ?? -1) >= 50 ? "text-amber-600 border-amber-200 bg-amber-50" :
                                 "text-muted-foreground"
                           )}>
                             {displayAccuracy} Accuracy

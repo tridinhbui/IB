@@ -83,7 +83,6 @@ export default function DashboardPage() {
     difficulty,
     setDifficulty,
     eliteMode,
-    progress,
     dbAnalytics,
     fetchDBAnalytics,
     startQuiz,
@@ -104,7 +103,7 @@ export default function DashboardPage() {
     if (!mounted || dbAnalytics.sections.length === 0) return "N/A";
     const sorted = [...dbAnalytics.sections].sort((a, b) => a.accuracy - b.accuracy);
     return sorted[0]?.section || "N/A";
-  }, [mounted, dbAnalytics.sections]);
+  }, [mounted, dbAnalytics]);
 
   const handleStartSectionQuiz = (section: Section) => {
     startQuiz(section);

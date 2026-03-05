@@ -54,7 +54,7 @@ const sections: { label: Section; icon: typeof Calculator }[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { eliteMode, setEliteMode, progress, dbAnalytics, fetchDBAnalytics, fetchAllTechnicalQuestions } = useQuizStore();
+  const { eliteMode, setEliteMode, dbAnalytics, fetchDBAnalytics, fetchAllTechnicalQuestions } = useQuizStore();
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);

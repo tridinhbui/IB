@@ -25,7 +25,7 @@ export async function GET() {
             include: { category: true },
         });
 
-        const formattedProgress = progress.map((p: any) => ({
+        const formattedProgress = progress.map((p) => ({
             categoryId: p.categoryId,
             section: p.category.name,
             questionsDone: p.questionsDone,
@@ -36,7 +36,7 @@ export async function GET() {
         let totalQuestionsDone = 0;
         let totalCorrectAnswers = 0;
 
-        formattedProgress.forEach((p: any) => {
+        formattedProgress.forEach((p) => {
             totalQuestionsDone += p.questionsDone;
             totalCorrectAnswers += p.correctAnswers;
         });
@@ -61,10 +61,10 @@ export async function GET() {
             recentResults: recentAttempts,
         });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error fetching quiz progress:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch quiz progress', details: error.message },
+            { error: 'Failed to fetch quiz progress', details: (error as Error).message },
             { status: 500 }
         );
     }
@@ -163,10 +163,10 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error updating quiz progress:', error);
         return NextResponse.json(
-            { error: 'Failed to update quiz progress', details: error.message },
+            { error: 'Failed to update quiz progress', details: (error as Error).message },
             { status: 500 }
         );
     }
