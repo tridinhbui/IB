@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fitBehavioralQuestions } from "@/lib/questions/fit-behavioral";
-import { Question, QuizResult } from "@/types/question";
+import { Question, QuizResult, Rank } from "@/types/question";
 import { useQuizStore } from "@/store/useQuizStore";
 
 const TOTAL_IB400 = 400;
@@ -113,7 +113,7 @@ export default function QuizPage() {
         score: stats.correct,
         total: stats.answered,
         accuracy: stats.accuracy,
-        rank: getRankLabel(stats.accuracy) as any,
+        rank: getRankLabel(stats.accuracy) as Rank,
         timestamp: Date.now(),
         sectionBreakdown,
       };
