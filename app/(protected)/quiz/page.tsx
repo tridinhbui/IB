@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,9 +23,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fitBehavioralQuestions } from "@/lib/questions/fit-behavioral";
-import { allQuestions } from "@/lib/questions";
+import { allQuestions as localAllQuestions } from "@/lib/questions";
 import { Question, Section } from "@/types/question";
-import { Calculator, Building2, DollarSign, Scale, BarChart3, Percent, Users } from "lucide-react";
+import { useQuizStore } from "@/store/useQuizStore";
+import { Calculator, Building2, DollarSign, Scale, BarChart3, Percent, Users, Loader2 } from "lucide-react";
 
 const TOTAL_IB400 = 400;
 
@@ -83,16 +84,43 @@ const sectionConfigs: {
 
 export default function QuizPage() {
   const router = useRouter();
+  const { allTechnicalQuestions, setAllTechnicalQuestions } = useQuizStore();
+  const [loading, setLoading] = useState(allTechnicalQuestions.length === 0);
   const [mode, setMode] = useState<QuizMode>("select");
   const [selectedSection, setSelectedSection] = useState<Section>("Fit & Behavioral");
-  const [questions, setQuestions] = useState<Question[]>(fitBehavioralQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
 
+  // Load questions from DB if store is empty
+  useEffect(() => {
+    if (allTechnicalQuestions.length > 0) {
+      setLoading(false);
+      return;
+    }
+
+    fetch("/api/technical-questions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAllTechnicalQuestions(data);
+        } else {
+          console.error("API did not return an array:", data);
+          setAllTechnicalQuestions([]); // Fallback
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch questions:", err);
+        setLoading(false);
+      });
+  }, [allTechnicalQuestions.length, setAllTechnicalQuestions]);
+
   const handleStartSection = useCallback((section: Section) => {
-    const sectionQuestions = allQuestions.filter(q => q.section === section);
+    const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
+    const sectionQuestions = safeQuestions.filter(q => q.section === section);
     setSelectedSection(section);
     setQuestions(shuffleArray(sectionQuestions));
     setCurrentIndex(0);
@@ -100,7 +128,7 @@ export default function QuizPage() {
     setRevealed({});
     setFinished(false);
     setMode("mc");
-  }, []);
+  }, [allTechnicalQuestions]);
 
   const question = questions[currentIndex];
   const userAnswer = question ? answers[question.id] : undefined;
@@ -141,13 +169,14 @@ export default function QuizPage() {
   }, [currentIndex, questions.length]);
 
   const handleShuffle = useCallback(() => {
-    const sectionQuestions = allQuestions.filter(q => q.section === selectedSection);
+    const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
+    const sectionQuestions = safeQuestions.filter(q => q.section === selectedSection);
     setQuestions(shuffleArray(sectionQuestions));
     setCurrentIndex(0);
     setAnswers({});
     setRevealed({});
     setFinished(false);
-  }, []);
+  }, [allTechnicalQuestions, selectedSection]);
 
   const handleReset = useCallback(() => {
     setCurrentIndex(0);
@@ -165,6 +194,14 @@ export default function QuizPage() {
     const tips = TIPS[selectedSection] || TIPS["Fit & Behavioral"];
     return tips[Math.floor(Math.random() * tips.length)];
   }, [currentIndex, selectedSection]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   // === MODE SELECTION SCREEN ===
   if (mode === "select") {
@@ -267,7 +304,8 @@ export default function QuizPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {sectionConfigs.map((section, index) => {
-              const questionCount = allQuestions.filter(q => q.section === section.label).length;
+              const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
+              const questionCount = safeQuestions.filter(q => q.section === section.label).length;
               return (
                 <motion.div
                   key={section.label}

@@ -12,15 +12,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -56,21 +55,44 @@ model EssayCategory {
   id        String          @id @default(cuid())
   name      String          @unique
   slug      String          @unique
-  questions EssayQuestion[]
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+  questions EssayQuestion[]
 }
 
 model EssayQuestion {
-  id              String @id @default(cuid())
-  questionText    String @db.Text
-  suggestedAnswer String @db.Text
+  id              String        @id @default(cuid())
+  questionText    String
+  suggestedAnswer String
+  categoryId      String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  category        EssayCategory @relation(fields: [categoryId], references: [id])
 
-  categoryId String
-  category   EssayCategory @relation(fields: [categoryId], references: [id])
+  @@index([categoryId])
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model QuizCategory {
+  id        String         @id @default(cuid())
+  name      String         @unique
+  slug      String         @unique
+  createdAt DateTime       @default(now())
+  questions QuizQuestion[]
+}
+
+model QuizQuestion {
+  id            String       @id @default(cuid())
+  questionId    String       @unique
+  questionText  String
+  choices       String[]
+  correctAnswer String
+  explanation   String
+  difficulty    String       @default("Beginner")
+  type          String       @default("mcq")
+  categoryId    String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  category      QuizCategory @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
 }

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+// Model update: added QuizCategory and QuizQuestion
 
 // Explicitly load env if not loaded
 import "dotenv/config";

@@ -41,10 +41,12 @@ interface QuizState {
   progress: UserProgress;
 
   essayQuestions: IbQuestion[];
+  allTechnicalQuestions: Question[];
 
   setDifficulty: (d: Difficulty) => void;
   setEliteMode: (elite: boolean) => void;
   setEssayQuestions: (questions: IbQuestion[]) => void;
+  setAllTechnicalQuestions: (questions: Question[]) => void;
   startQuiz: (section?: Section) => void;
   startDragQuiz: () => void;
   submitAnswer: (questionId: string, answer: string) => void;
@@ -84,12 +86,19 @@ export const useQuizStore = create<QuizState>()(
       timeRemaining: 1200,
       progress: defaultProgress,
       essayQuestions: [],
+      allTechnicalQuestions: [],
 
       setDifficulty: (d) => set({ difficulty: d }),
 
       setEliteMode: (elite) => set({ eliteMode: elite }),
 
       setEssayQuestions: (questions) => set({ essayQuestions: questions }),
+
+      setAllTechnicalQuestions: (questions) => {
+        if (Array.isArray(questions)) {
+          set({ allTechnicalQuestions: questions });
+        }
+      },
 
       startQuiz: (section) => {
         const { difficulty, eliteMode } = get();
@@ -280,6 +289,8 @@ export const useQuizStore = create<QuizState>()(
         progress: state.progress,
         difficulty: state.difficulty,
         eliteMode: state.eliteMode,
+        allTechnicalQuestions: state.allTechnicalQuestions,
+        essayQuestions: state.essayQuestions,
       }),
     }
   )
