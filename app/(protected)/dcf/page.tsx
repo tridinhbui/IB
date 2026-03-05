@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import {
   Trophy,
   Target,
   Info,
+  Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -59,6 +60,8 @@ import {
 } from "@/lib/dcf/engine";
 import { LEARNING_MODULES } from "@/lib/dcf/modules";
 import { COMPANY_CASES, calculateHistoricalMetrics } from "@/lib/dcf/cases";
+import { useDCFStore } from "@/store/useDCFStore";
+import { DCF_LEARNING_PATH } from "@/lib/dcf/learning-path";
 
 const BUILD_STEPS = [
   {
@@ -134,7 +137,24 @@ const BUILD_STEPS = [
 ];
 
 export default function DCFPage() {
+  const recordVisit = useDCFStore((s) => s.recordVisit);
+  const markLessonViewed = useDCFStore((s) => s.markLessonViewed);
+  const completePractice = useDCFStore((s) => s.completePractice);
+  const completeScenario = useDCFStore((s) => s.completeScenario);
+  const getStepProgress = useDCFStore((s) => s.getStepProgress);
+  const getOverallProgress = useDCFStore((s) => s.getOverallProgress);
+  const getNextStep = useDCFStore((s) => s.getNextStep);
+  const getStreakDays = useDCFStore((s) => s.getStreakDays);
+
   const [activeTab, setActiveTab] = useState("learn");
+  const sensitivityCompleted = useRef(false);
+  useEffect(() => {
+    recordVisit(activeTab);
+    if (activeTab === "sensitivity" && !sensitivityCompleted.current) {
+      sensitivityCompleted.current = true;
+      completeScenario("sensitivity");
+    }
+  }, [activeTab, recordVisit, completeScenario]);
   const [assumptions, setAssumptions] = useState<Assumptions>(DEFAULT_ASSUMPTIONS);
 
   const [learnModuleIndex, setLearnModuleIndex] = useState(0);
@@ -185,13 +205,17 @@ export default function DCFPage() {
   const currentModule = LEARNING_MODULES[learnModuleIndex];
 
   const handleModuleComplete = useCallback(() => {
+    const correctCount = currentModule.quiz.filter((_, i) => (quizAnswers[i] || "").trim().toLowerCase() === currentModule.quiz[i].answer.toLowerCase()).length;
+    const accuracy = currentModule.quiz.length > 0 ? Math.round((correctCount / currentModule.quiz.length) * 100) : 0;
+    completePractice("learn", accuracy);
+    markLessonViewed("learn", currentModule.id);
     setCompletedModules((prev) => new Set(Array.from(prev).concat(currentModule.id)));
     setQuizAnswers({});
     setQuizSubmitted(false);
     if (learnModuleIndex < LEARNING_MODULES.length - 1) {
       setLearnModuleIndex(learnModuleIndex + 1);
     }
-  }, [currentModule, learnModuleIndex]);
+  }, [currentModule, learnModuleIndex, quizAnswers, completePractice, markLessonViewed]);
 
   const quizResults = currentModule.quiz.map((q, i) => ({
     correct: (quizAnswers[i] || "").trim().toLowerCase() === q.answer.toLowerCase(),
@@ -218,6 +242,56 @@ export default function DCFPage() {
           <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
           Reset All
         </Button>
+      </motion.div>
+
+      {/* Progress & Motivation */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+      >
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-finstep-orange/10 flex items-center justify-center">
+                <Target className="w-5 h-5 text-finstep-orange" />
+              </div>
+              <div>
+                <p className="text-xl font-varela font-bold tabular-nums">{getOverallProgress()}%</p>
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">Tiến độ</p>
+              </div>
+            </div>
+            <Progress value={getOverallProgress()} className="mt-2 h-1.5" />
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xl font-varela font-bold tabular-nums">{getStreakDays()}</p>
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">Ngày streak</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xl font-varela font-bold tabular-nums">
+                  {DCF_LEARNING_PATH.filter((s) => getStepProgress(s.id).masteryLevel === "mastered").length}/{DCF_LEARNING_PATH.length}
+                </p>
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase">Đã nắm vững</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -264,6 +338,7 @@ export default function DCFPage() {
                             setLearnModuleIndex(i);
                             setQuizAnswers({});
                             setQuizSubmitted(false);
+                            markLessonViewed("learn", mod.id);
                           }}
                           className={cn(
                             "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm font-nunito transition-all",
@@ -653,8 +728,10 @@ export default function DCFPage() {
                       Back
                     </Button>
                     <Button
-                      onClick={() => setBuildStep(Math.min(9, buildStep + 1))}
-                      disabled={buildStep === 9}
+                      onClick={() => {
+                        if (buildStep === 8) completeScenario("build");
+                        setBuildStep(Math.min(9, buildStep + 1));
+                      }}
                       className="flex-1 h-9 text-xs bg-finstep-orange text-white hover:brightness-110"
                     >
                       {buildStep === 9 ? "Complete" : "Next"}
@@ -988,7 +1065,10 @@ export default function DCFPage() {
                 </div>
                 {!caseCompleted && (
                   <Button
-                    onClick={() => setCaseCompleted(true)}
+                    onClick={() => {
+                    setCaseCompleted(true);
+                    completeScenario("case");
+                  }}
                     className="h-9 bg-finstep-orange text-white hover:brightness-110"
                   >
                     <CheckCircle2 className="w-4 h-4 mr-1.5" />

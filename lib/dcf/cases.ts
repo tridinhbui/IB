@@ -91,6 +91,42 @@ export const COMPANY_CASES: CompanyCase[] = [
     analystConsensusGrowth: 7,
     referenceEVRange: [350000, 450000],
   },
+  {
+    id: "amazon",
+    name: "Amazon",
+    ticker: "AMZN",
+    sector: "Technology / Retail",
+    description:
+      "Amazon is the world's largest e-commerce and cloud computing company. AWS drives most profits; retail operates on thin margins. Prime membership and advertising are growing high-margin revenue streams.",
+    historicalData: [
+      { year: 2020, revenue: 386064, ebit: 22900, da: 47466, capex: 40164, nwc: -20000 },
+      { year: 2021, revenue: 469822, ebit: 24920, da: 56522, capex: 55358, nwc: -15000 },
+      { year: 2022, revenue: 513983, ebit: 12248, da: 67532, capex: 58789, nwc: -10000 },
+      { year: 2023, revenue: 574785, ebit: 36852, da: 73755, capex: 54164, nwc: -8000 },
+      { year: 2024, revenue: 638762, ebit: 52000, da: 78000, capex: 60000, nwc: -5000 },
+    ],
+    sectorAvgWacc: 10.0,
+    analystConsensusGrowth: 12,
+    referenceEVRange: [1800000, 2200000],
+  },
+  {
+    id: "meta",
+    name: "Meta",
+    ticker: "META",
+    sector: "Technology",
+    description:
+      "Meta owns Facebook, Instagram, WhatsApp, and the metaverse. Advertising drives nearly all revenue. AI investments and Reality Labs (VR/AR) are significant growth bets with uncertain payoffs.",
+    historicalData: [
+      { year: 2020, revenue: 85965, ebit: 32671, da: 10271, capex: 15257, nwc: 5000 },
+      { year: 2021, revenue: 117929, ebit: 46752, da: 11229, capex: 19218, nwc: 8000 },
+      { year: 2022, revenue: 116609, ebit: 28944, da: 11279, capex: 32000, nwc: 3000 },
+      { year: 2023, revenue: 134902, ebit: 47882, da: 11279, capex: 28000, nwc: 6000 },
+      { year: 2024, revenue: 153000, ebit: 62000, da: 12000, capex: 35000, nwc: 5000 },
+    ],
+    sectorAvgWacc: 10.5,
+    analystConsensusGrowth: 15,
+    referenceEVRange: [1400000, 1800000],
+  },
 ];
 
 export function getCompanyById(id: string): CompanyCase | undefined {

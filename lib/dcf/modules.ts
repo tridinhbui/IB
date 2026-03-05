@@ -363,4 +363,123 @@ export const LEARNING_MODULES: LearningModule[] = [
       },
     ],
   },
+  {
+    id: "discount-factor",
+    title: "Discount Factor",
+    formula: "DF_n = 1 / (1 + WACC)^n",
+    explanation:
+      "The discount factor converts future cash flows to present value. Each year's FCF is multiplied by DF_n. Year 1 uses DF=0.909 at 10% WACC; Year 5 uses DF=0.621. The farther out the cash flow, the lower its present value. Small changes in WACC have large effects on distant cash flows.",
+    example: {
+      description: "Calculate discount factors for Years 1-3 at 10% WACC",
+      inputs: [
+        { label: "WACC", value: "10%" },
+        { label: "Years", value: "1, 2, 3" },
+      ],
+      calculation:
+        "DF_1 = 1/(1.10)^1 = 0.909\nDF_2 = 1/(1.10)^2 = 0.826\nDF_3 = 1/(1.10)^3 = 0.751",
+      result: "DF_1=0.909, DF_2=0.826, DF_3=0.751",
+    },
+    commonMistakes: [
+      "Using nominal WACC when cash flows are in real terms (or vice versa)",
+      "Forgetting to discount the terminal value back to Year 0",
+      "Applying different discount rates to different years without justification",
+    ],
+    quiz: [
+      {
+        question: "DF_n = 1 / (1 + ___)^n",
+        answer: "WACC",
+        hint: "The discount rate",
+      },
+      {
+        question: "At 10% WACC, the Year 5 discount factor is approximately ___",
+        answer: "0.62",
+        hint: "1/(1.1)^5",
+      },
+      {
+        question: "Higher WACC means ___ present value for future cash flows",
+        answer: "lower",
+        hint: "Inverse relationship",
+      },
+    ],
+  },
+  {
+    id: "mid-year-convention",
+    title: "Mid-Year Convention",
+    formula: "PV = FCF / (1 + WACC)^(n − 0.5)",
+    explanation:
+      "Mid-year convention assumes cash flows occur at the midpoint of each year rather than year-end. This better reflects reality since companies generate cash throughout the year. The adjustment uses (n − 0.5) in the exponent. It typically increases EV by 3-5% vs year-end convention.",
+    example: {
+      description: "Year 1 FCF $100 at 10% WACC: year-end vs mid-year",
+      inputs: [
+        { label: "FCF", value: "$100" },
+        { label: "WACC", value: "10%" },
+      ],
+      calculation:
+        "Year-end: $100 / 1.10 = $90.91\nMid-year: $100 / 1.10^0.5 = $95.35",
+      result: "Mid-year gives ~5% higher PV",
+    },
+    commonMistakes: [
+      "Using mid-year for terminal value (TV is typically year-end)",
+      "Mixing conventions within the same model",
+      "Forgetting to apply consistently across all explicit period FCFs",
+    ],
+    quiz: [
+      {
+        question: "Mid-year convention assumes cash flows occur at year ___",
+        answer: "midpoint",
+        hint: "Middle of the year",
+      },
+      {
+        question: "The exponent for Year 2 mid-year is (2 − ___)",
+        answer: "0.5",
+        hint: "Half year adjustment",
+      },
+      {
+        question: "Mid-year typically ___ EV vs year-end",
+        answer: "increases",
+        hint: "Cash arrives sooner in PV terms",
+      },
+    ],
+  },
+  {
+    id: "bridge-to-equity",
+    title: "Bridge to Equity Value",
+    formula: "Equity Value = EV − Net Debt + Non-Core Assets\nNet Debt = Total Debt − Cash − Equivalents",
+    explanation:
+      "The bridge from Enterprise Value to Equity Value requires subtracting all claims that rank above equity. Net Debt is the primary adjustment. Also add non-operating assets (excess cash, investments, stakes in other companies). Preferred stock and minority interest are subtracted. The result is the value attributable to common shareholders.",
+    example: {
+      description: "Bridge from EV to Equity Value",
+      inputs: [
+        { label: "EV", value: "$2,500M" },
+        { label: "Total Debt", value: "$600M" },
+        { label: "Cash", value: "$150M" },
+        { label: "Minority Interest", value: "$20M" },
+      ],
+      calculation:
+        "Net Debt = $600 − $150 = $450\nEquity = $2,500 − $450 − $20",
+      result: "$2,030M Equity Value",
+    },
+    commonMistakes: [
+      "Including operating cash in the cash subtraction (only excess cash)",
+      "Forgetting minority interest or preferred stock",
+      "Double-counting assets already in FCF projections",
+    ],
+    quiz: [
+      {
+        question: "Net Debt = Total Debt − ___",
+        answer: "Cash",
+        hint: "Liquid assets reduce net debt",
+      },
+      {
+        question: "___ interest is subtracted from EV to get equity value",
+        answer: "Minority",
+        hint: "Non-controlling stake",
+      },
+      {
+        question: "Only ___ cash should be added back (not operating cash)",
+        answer: "excess",
+        hint: "Cash beyond operational needs",
+      },
+    ],
+  },
 ];
