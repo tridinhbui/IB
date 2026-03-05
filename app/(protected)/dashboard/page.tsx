@@ -6,7 +6,6 @@ import { useQuizStore } from "@/store/useQuizStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -33,6 +32,8 @@ import {
 } from "lucide-react";
 import { Difficulty, Section } from "@/types/question";
 import { allQuestions } from "@/lib/questions";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 const container = {
   hidden: { opacity: 0 },
@@ -50,20 +51,20 @@ const sectionConfigs: {
   color: string;
   gradient: string;
 }[] = [
-  { label: "Accounting", icon: Calculator, color: "text-blue-600", gradient: "from-blue-500/10 to-blue-600/5" },
-  { label: "EV vs Equity Value", icon: Building2, color: "text-emerald-600", gradient: "from-emerald-500/10 to-emerald-600/5" },
-  { label: "Valuation", icon: DollarSign, color: "text-amber-600", gradient: "from-amber-500/10 to-amber-600/5" },
-  { label: "M&A", icon: Scale, color: "text-purple-600", gradient: "from-purple-500/10 to-purple-600/5" },
-  { label: "LBO", icon: BarChart3, color: "text-rose-600", gradient: "from-rose-500/10 to-rose-600/5" },
-  { label: "Accretion/Dilution", icon: Percent, color: "text-cyan-600", gradient: "from-cyan-500/10 to-cyan-600/5" },
-  { label: "Fit & Behavioral", icon: Users, color: "text-indigo-600", gradient: "from-indigo-500/10 to-indigo-600/5" },
-];
+    { label: "Accounting", icon: Calculator, color: "text-amber-600", gradient: "from-amber-500/10 to-amber-600/5" },
+    { label: "EV vs Equity Value", icon: Building2, color: "text-orange-600", gradient: "from-orange-500/10 to-orange-600/5" },
+    { label: "Valuation", icon: DollarSign, color: "text-amber-600", gradient: "from-amber-500/10 to-amber-600/5" },
+    { label: "M&A", icon: Scale, color: "text-orange-600", gradient: "from-orange-500/10 to-orange-600/5" },
+    { label: "LBO", icon: BarChart3, color: "text-red-600", gradient: "from-red-500/10 to-red-600/5" },
+    { label: "Accretion/Dilution", icon: Percent, color: "text-rose-600", gradient: "from-rose-500/10 to-rose-600/5" },
+    { label: "Fit & Behavioral", icon: Users, color: "text-orange-600", gradient: "from-orange-500/10 to-orange-600/5" },
+  ];
 
 function getRankColor(accuracy: number) {
-  if (accuracy >= 85) return "text-emerald-600 dark:text-emerald-400";
-  if (accuracy >= 75) return "text-blue-600 dark:text-blue-400";
-  if (accuracy >= 60) return "text-amber-600 dark:text-amber-400";
-  return "text-red-600 dark:text-red-400";
+  if (accuracy >= 85) return "text-emerald-600";
+  if (accuracy >= 75) return "text-amber-600";
+  if (accuracy >= 60) return "text-orange-600";
+  return "text-red-600";
 }
 
 function getRankLabel(accuracy: number) {
@@ -74,6 +75,7 @@ function getRankLabel(accuracy: number) {
 }
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const {
     difficulty,
@@ -98,14 +100,28 @@ export default function DashboardPage() {
       variants={container}
       initial="hidden"
       animate="show"
-      className="max-w-6xl mx-auto space-y-8"
+      className="max-w-6xl mx-auto space-y-8 font-nunito text-finstep-brown"
     >
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back
-          </h1>
-          <p className="text-muted-foreground mt-1">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-varela font-bold tracking-tight text-finstep-orange">
+              Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ""}
+            </h1>
+            {session?.user?.image && (
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-finstep-beige border border-finstep-brown/10 shadow-sm">
+                <Image
+                  src={session.user.image}
+                  alt="Profile"
+                  width={20}
+                  height={20}
+                  className="rounded-full border border-finstep-orange/20"
+                />
+                <span className="text-[9px] font-nunito font-bold text-finstep-brown/40 uppercase tracking-tighter">Google</span>
+              </div>
+            )}
+          </div>
+          <p className="text-finstep-lightbrown font-medium">
             Track your progress and start training
           </p>
         </div>
@@ -126,17 +142,17 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div variants={item}>
-          <Card className="shadow-sm hover:shadow-md transition-shadow border-border/40">
+          <Card className="shadow-sm hover:shadow-md transition-shadow border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-blue-600" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tabular-nums">
+                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">
                     {progress.totalCompleted}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Questions Done
                   </p>
                 </div>
@@ -146,15 +162,15 @@ export default function DashboardPage() {
         </motion.div>
 
         <motion.div variants={item}>
-          <Card className="shadow-sm hover:shadow-md transition-shadow border-border/40">
+          <Card className="shadow-sm hover:shadow-md transition-shadow border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-emerald-600" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-finstep-orange/10 to-finstep-orange/5 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-finstep-orange" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tabular-nums">{accuracy}%</p>
-                  <p className="text-xs text-muted-foreground">Accuracy</p>
+                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">{accuracy}%</p>
+                  <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Accuracy</p>
                 </div>
               </div>
             </CardContent>
@@ -162,17 +178,17 @@ export default function DashboardPage() {
         </motion.div>
 
         <motion.div variants={item}>
-          <Card className="shadow-sm hover:shadow-md transition-shadow border-border/40">
+          <Card className="shadow-sm hover:shadow-md transition-shadow border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-red-500/10 to-red-600/5 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold truncate max-w-[120px]">
+                  <p className="text-sm font-bold truncate max-w-[120px] text-finstep-brown">
                     {weakest}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Weakest Section
                   </p>
                 </div>
@@ -182,17 +198,17 @@ export default function DashboardPage() {
         </motion.div>
 
         <motion.div variants={item}>
-          <Card className="shadow-sm hover:shadow-md transition-shadow border-border/40">
+          <Card className="shadow-sm hover:shadow-md transition-shadow border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-purple-600" />
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
                   <p className={`text-sm font-bold ${getRankColor(accuracy)}`}>
                     {getRankLabel(accuracy)}
                   </p>
-                  <p className="text-xs text-muted-foreground">Current Rank</p>
+                  <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Current Rank</p>
                 </div>
               </div>
             </CardContent>
@@ -202,14 +218,14 @@ export default function DashboardPage() {
 
       <motion.div variants={item}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="shadow-sm border-border/40 md:col-span-2">
+          <Card className="shadow-sm border-finstep-brown/10 bg-card/80 backdrop-blur-sm md:col-span-2">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-semibold text-lg">Quick Start</h3>
+                <h3 className="font-varela font-bold text-xl text-finstep-brown">Quick Start</h3>
                 {eliteMode && (
                   <Badge
                     variant="outline"
-                    className="text-amber-600 border-amber-500/30 bg-amber-50 dark:bg-amber-500/10"
+                    className="text-amber-600 border-amber-500/30 bg-amber-50"
                   >
                     <Zap className="w-3 h-3 mr-1" />
                     Elite
@@ -219,52 +235,52 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Button
                   onClick={() => router.push("/quiz")}
-                  className="h-auto py-4 flex-col gap-2 gradient-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+                  className="h-auto py-4 flex-col gap-2 font-varela font-bold bg-finstep-orange text-white hover:brightness-110 shadow-lg shadow-finstep-orange/20 transition-all transform hover:-translate-y-0.5"
                   size="lg"
                 >
                   <BookOpen className="w-5 h-5" />
-                  <span className="text-xs font-normal opacity-90">30 / 400</span>
+                  <span className="text-xs font-nunito font-normal opacity-90">30 / 400</span>
                   IB Quiz
                 </Button>
                 <Button
                   onClick={() => router.push("/accounting-drag")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
-                  <GripVertical className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-xs font-normal text-muted-foreground">Interactive</span>
+                  <GripVertical className="w-5 h-5 text-finstep-lightbrown" />
+                  <span className="text-xs font-normal text-finstep-brown/60">Interactive</span>
                   Drag & Drop
                 </Button>
                 <Button
                   onClick={() => router.push("/simulation")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
-                  <FlaskConical className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-xs font-normal text-muted-foreground">Learn</span>
+                  <FlaskConical className="w-5 h-5 text-finstep-lightbrown" />
+                  <span className="text-xs font-normal text-finstep-brown/60">Learn</span>
                   3-Stmt Sim
                 </Button>
                 <Button
                   onClick={() => router.push("/dcf")}
                   variant="outline"
-                  className="h-auto py-4 flex-col gap-2 shadow-sm"
+                  className="h-auto py-4 flex-col gap-2 shadow-sm border-finstep-brown/10 bg-finstep-beige/50 text-finstep-brown hover:bg-finstep-orange/10 hover:border-finstep-orange hover:text-finstep-orange transition-all"
                   size="lg"
                 >
-                  <Calculator className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-xs font-normal text-muted-foreground">Valuation</span>
+                  <Calculator className="w-5 h-5 text-finstep-lightbrown" />
+                  <span className="text-xs font-normal text-finstep-brown/60">Valuation</span>
                   DCF Model
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-border/40">
+          <Card className="shadow-sm border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-4">Recent Results</h3>
+              <h3 className="font-varela font-bold text-lg text-finstep-brown mb-4">Recent Results</h3>
               {progress.quizHistory.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-finstep-brown/60">
                   No quizzes completed yet.
                 </p>
               ) : (
@@ -275,14 +291,14 @@ export default function DashboardPage() {
                       className="flex items-center justify-between text-sm"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-finstep-brown/70 font-semibold text-xs truncate max-w-[120px]">
                           {result.section}
                         </span>
-                        <Badge variant="secondary" className="text-[10px] px-1.5">
+                        <Badge variant="secondary" className="text-[10px] px-1.5 bg-finstep-beige text-finstep-lightbrown border-none hover:bg-finstep-beige">
                           {result.difficulty}
                         </Badge>
                       </div>
-                      <span className={`font-semibold tabular-nums ${getRankColor(result.accuracy)}`}>
+                      <span className={`font-varela font-bold tabular-nums ${getRankColor(result.accuracy)}`}>
                         {result.accuracy}%
                       </span>
                     </div>
@@ -296,60 +312,62 @@ export default function DashboardPage() {
 
       <motion.div variants={item}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Sections</h2>
-          <span className="text-xs text-muted-foreground">
+          <h2 className="text-xl font-varela font-bold text-finstep-brown">Sections</h2>
+          <span className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
             {allQuestions.length} total questions
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {sectionConfigs.map((section) => {
-            const stats = progress.sectionStats[section.label];
-            const sectionAcc =
-              stats && stats.total > 0
-                ? Math.round((stats.correct / stats.total) * 100)
-                : 0;
+            const lastQuizWithSection = progress.quizHistory
+              .filter((r) => r.sectionBreakdown[section.label] && r.sectionBreakdown[section.label].total > 0)
+              .sort((a, b) => b.timestamp - a.timestamp)[0];
+            const sectionData = lastQuizWithSection?.sectionBreakdown[section.label];
+            const lastAttemptAcc = sectionData
+              ? Math.round((sectionData.correct / sectionData.total) * 100)
+              : null;
             const questionCount = allQuestions.filter(
               (q) => q.section === section.label
             ).length;
 
             return (
               <motion.div key={section.label} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
-                <Card className="shadow-sm hover:shadow-lg transition-all border-border/40 overflow-hidden group">
-                  <div className={`h-1 gradient-primary opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <Card className="shadow-sm hover:shadow-lg transition-all border-finstep-brown/10 bg-card/80 backdrop-blur-sm overflow-hidden group">
+                  <div className={`h-1 bg-gradient-to-r from-finstep-orange to-finstep-lightbrown opacity-0 group-hover:opacity-100 transition-opacity`} />
                   <CardHeader className="pb-2 pt-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
                         <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}>
                           <section.icon className={`w-4 h-4 ${section.color}`} />
                         </div>
-                        <CardTitle className="text-sm font-semibold">
+                        <CardTitle className="text-sm font-varela font-bold text-finstep-brown">
                           {section.label}
                         </CardTitle>
                       </div>
-                      <Badge variant="secondary" className="text-[10px] px-1.5">
+                      <Badge variant="secondary" className="text-[10px] px-1.5 bg-finstep-beige text-finstep-brown border-none hover:bg-finstep-beige">
                         {questionCount}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1.5">
-                          <span className="text-muted-foreground">Accuracy</span>
-                          <span className="font-semibold tabular-nums">{sectionAcc}%</span>
-                        </div>
-                        <Progress value={sectionAcc} className="h-2" />
+                      <div className="text-center py-2">
+                        {lastAttemptAcc !== null ? (
+                          <div>
+                            <p className="text-4xl font-varela font-bold text-finstep-brown">
+                              {lastAttemptAcc}%
+                            </p>
+                            <p className="text-xs text-finstep-brown/60 font-medium mt-1">Last Attempt</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-finstep-brown/60">No attempts yet</p>
+                        )}
                       </div>
-                      {stats && (
-                        <p className="text-xs text-muted-foreground">
-                          {stats.correct}/{stats.total} correct
-                        </p>
-                      )}
                       <Button
                         onClick={() => handleStartSectionQuiz(section.label)}
                         variant="ghost"
                         size="sm"
-                        className="w-full group/btn"
+                        className="w-full group/btn text-finstep-brown hover:text-finstep-orange hover:bg-finstep-beige"
                       >
                         Practice
                         <ArrowRight className="w-3 h-3 ml-1 group-hover/btn:translate-x-1 transition-transform" />

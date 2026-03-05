@@ -254,6 +254,7 @@ export default function SimulationPage() {
   const [stepChanges, setStepChanges] = useState<StepChange[]>([]);
   const [revealedStepCount, setRevealedStepCount] = useState(0);
   const [stepping, setStepping] = useState(false);
+  const [activeTable, setActiveTable] = useState<"IS" | "BS" | "CFS">("IS");
 
   const eventDef = useMemo(
     () => EVENT_DEFINITIONS.find((e) => e.type === selectedEvent),
@@ -347,52 +348,55 @@ export default function SimulationPage() {
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-5">
+    <div className="xl:max-w-[1400px] mx-auto h-[100dvh] xl:h-auto flex flex-col overflow-hidden xl:overflow-visible px-2 xl:px-0 xl:space-y-5">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="flex-none flex flex-row items-center justify-between gap-2 py-2 xl:py-0"
       >
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <FlaskConical className="w-6 h-6 text-primary" />
-            3-Statement Simulation
+        <div className="min-w-0">
+          <h1 className="text-base xl:text-2xl font-bold tracking-tight flex items-center gap-2 truncate">
+            <FlaskConical className="w-5 h-5 xl:w-6 xl:h-6 text-primary shrink-0" />
+            <span className="truncate">
+              <span className="hidden sm:inline">3-Statement Simulation</span>
+              <span className="sm:hidden">3-Stmt Sim</span>
+            </span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="hidden xl:block text-sm text-muted-foreground mt-1">
             Apply events and click through each impact step-by-step
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleReset}>
-          <RotateCcw className="w-3.5 h-3.5 mr-1" />
+        <Button variant="outline" size="sm" onClick={handleReset} className="h-8 xl:h-9 px-2 xl:px-3 text-[10px] xl:text-xs">
+          <RotateCcw className="w-3 h-3 xl:w-3.5 xl:h-3.5 mr-1" />
           Reset
         </Button>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-        <div className="xl:col-span-3 space-y-4">
+      <div className="flex-1 flex flex-col xl:grid xl:grid-cols-12 gap-2 xl:gap-5 overflow-hidden xl:overflow-visible">
+        <div className="flex-1 xl:flex-none xl:col-span-3 min-h-0 xl:min-h-[none] space-y-2 xl:space-y-4 order-last xl:order-first pb-16 xl:pb-0 overflow-y-auto xl:overflow-visible">
           <Card className="shadow-sm border-border/40">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Play className="w-4 h-4 text-primary" />
+            <CardHeader className="pb-2 pt-3 xl:pb-3 xl:pt-6 px-4 xl:px-6">
+              <CardTitle className="text-xs xl:text-sm flex items-center gap-2">
+                <Play className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-primary" />
                 Choose Event
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 xl:space-y-3 pb-3 xl:pb-6">
               <div className="space-y-1.5">
                 <div className="relative">
                   <button
                     onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
                     disabled={stepping}
                     className={cn(
-                      "w-full text-left flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background px-3 py-2.5 text-sm shadow-sm hover:bg-muted/30 transition-colors",
+                      "w-full text-left flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background px-3 py-1.5 xl:py-2.5 text-xs xl:text-sm shadow-sm hover:bg-muted/30 transition-colors",
                       stepping && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className={cn("w-2 h-2 rounded-full shrink-0", CATEGORY_COLORS[eventDef?.category || "Operating"])} />
+                      <div className={cn("w-1.5 h-1.5 xl:w-2 xl:h-2 rounded-full shrink-0", CATEGORY_COLORS[eventDef?.category || "Operating"])} />
                       <span className="truncate font-medium">{eventDef?.label}</span>
                     </div>
-                    <ChevronDown className={cn("w-4 h-4 text-muted-foreground shrink-0 transition-transform", eventDropdownOpen && "rotate-180")} />
+                    <ChevronDown className={cn("w-3.5 h-3.5 xl:w-4 xl:h-4 text-muted-foreground shrink-0 transition-transform", eventDropdownOpen && "rotate-180")} />
                   </button>
                   <AnimatePresence>
                     {eventDropdownOpen && !stepping && (
@@ -428,7 +432,7 @@ export default function SimulationPage() {
                   </AnimatePresence>
                 </div>
                 {eventDef && (
-                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-2 px-1">
+                  <p className="text-[9px] xl:text-[11px] text-muted-foreground leading-tight xl:leading-relaxed mt-1 xl:mt-2 px-1">
                     {eventDef.description}
                   </p>
                 )}
@@ -436,24 +440,24 @@ export default function SimulationPage() {
 
               <Separator />
 
-              <div className="space-y-2.5">
-                <div className="space-y-1">
-                  <Label className="text-xs font-medium">Amount ($)</Label>
+              <div className="grid grid-cols-2 gap-2 xl:flex xl:flex-col xl:space-y-2.5">
+                <div className="space-y-0.5 xl:space-y-1">
+                  <Label className="text-[10px] xl:text-xs font-medium">Amount ($)</Label>
                   <Input
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className="h-9 text-sm"
+                    className="h-8 xl:h-9 text-xs xl:text-sm"
                     disabled={stepping}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs font-medium">Tax Rate (%)</Label>
+                <div className="space-y-0.5 xl:space-y-1">
+                  <Label className="text-[10px] xl:text-xs font-medium">Tax Rate (%)</Label>
                   <Input
                     type="number"
                     value={taxRate}
                     onChange={(e) => setTaxRate(Number(e.target.value))}
-                    className="h-9 text-sm"
+                    className="h-8 xl:h-9 text-xs xl:text-sm"
                     min={0}
                     max={100}
                     disabled={stepping}
@@ -462,40 +466,40 @@ export default function SimulationPage() {
                 {(selectedEvent === "depreciation" ||
                   selectedEvent === "buy_ppe_cash" ||
                   selectedEvent === "buy_ppe_debt") && (
-                  <div className="space-y-1">
-                    <Label className="text-xs font-medium">Useful Life (yrs)</Label>
-                    <Input
-                      type="number"
-                      value={usefulLife}
-                      onChange={(e) => setUsefulLife(Number(e.target.value))}
-                      className="h-9 text-sm"
-                      min={1}
-                      disabled={stepping}
-                    />
-                  </div>
-                )}
+                    <div className="space-y-0.5 xl:space-y-1 col-span-2 xl:col-span-1">
+                      <Label className="text-[10px] xl:text-xs font-medium">Useful Life (yrs)</Label>
+                      <Input
+                        type="number"
+                        value={usefulLife}
+                        onChange={(e) => setUsefulLife(Number(e.target.value))}
+                        className="h-8 xl:h-9 text-xs xl:text-sm"
+                        min={1}
+                        disabled={stepping}
+                      />
+                    </div>
+                  )}
               </div>
 
               <Separator />
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium flex items-center gap-1.5">
-                  {interviewMode ? <EyeOff className="w-3.5 h-3.5 text-amber-500" /> : <Eye className="w-3.5 h-3.5 text-primary" />}
+              <div className="flex items-center justify-between xl:border-none border-t border-border/10 pt-1.5 xl:pt-0">
+                <span className="text-[10px] xl:text-xs font-medium flex items-center gap-1.5">
+                  {interviewMode ? <EyeOff className="w-3 h-3 xl:w-3.5 xl:h-3.5 text-amber-500" /> : <Eye className="w-3 h-3 xl:w-3.5 xl:h-3.5 text-primary" />}
                   Interview Mode
                 </span>
                 <Switch
                   checked={interviewMode}
                   onCheckedChange={(v) => { setInterviewMode(v); setGuessRevealed(false); }}
-                  className="scale-90"
+                  className="scale-[0.7] xl:scale-90 origin-right"
                 />
               </div>
 
               {!stepping ? (
                 <Button
                   onClick={handleApplyEvent}
-                  className="w-full gradient-primary text-white shadow-lg shadow-primary/20 h-10 text-sm font-semibold"
+                  className="w-full gradient-primary text-white shadow-lg shadow-primary/20 h-9 xl:h-10 text-xs xl:text-sm font-semibold"
                 >
-                  <Play className="w-4 h-4 mr-2" />
+                  <Play className="w-3.5 h-3.5 xl:w-4 xl:h-4 mr-2" />
                   Apply Event
                 </Button>
               ) : (
@@ -565,13 +569,13 @@ export default function SimulationPage() {
           )}
         </div>
 
-        <div className="xl:col-span-9 space-y-4">
+        <div className="flex-[1.6] xl:flex-none xl:col-span-9 flex flex-col overflow-hidden xl:overflow-visible xl:space-y-4 min-h-0 order-first xl:order-last">
           {!result ? (
-            <Card className="shadow-sm border-border/40 h-full flex items-center justify-center min-h-[400px]">
-              <CardContent className="py-16 text-center">
-                <FlaskConical className="w-16 h-16 mx-auto text-muted-foreground/20 mb-4" />
-                <h3 className="text-lg font-bold mb-2">Ready to Simulate</h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+            <Card className="shadow-sm border-border/40 h-full flex items-center justify-center min-h-[200px] xl:min-h-[400px]">
+              <CardContent className="py-8 xl:py-16 text-center">
+                <FlaskConical className="w-10 h-10 xl:w-16 xl:h-16 mx-auto text-muted-foreground/20 mb-3 xl:mb-4" />
+                <h3 className="text-base xl:text-lg font-bold mb-1 xl:mb-2">Ready to Simulate</h3>
+                <p className="text-[10px] xl:text-sm text-muted-foreground max-w-[280px] xl:max-w-md mx-auto leading-tight xl:leading-relaxed">
                   Choose an event and click &quot;Apply Event&quot;.
                   Then click &quot;Next Step&quot; to see each change appear one at a time.
                 </p>
@@ -587,146 +591,171 @@ export default function SimulationPage() {
               )}
 
               {stepping && (
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="flex items-center gap-2 mb-1 xl:mb-0 flex-none px-1">
+                  <div className="flex-1 h-1.5 xl:h-2 bg-muted rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-primary rounded-full"
                       animate={{ width: `${stepChanges.length > 0 ? (revealedStepCount / stepChanges.length) * 100 : 0}%` }}
                       transition={{ duration: 0.3 }}
                     />
                   </div>
-                  <span className="text-xs text-muted-foreground tabular-nums shrink-0 font-medium">
-                    Step {revealedStepCount} / {stepChanges.length}
+                  <span className="text-[10px] xl:text-xs text-muted-foreground tabular-nums shrink-0 font-medium">
+                    {revealedStepCount} / {stepChanges.length}
                   </span>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <StatementCard
-                  title="Income Statement"
-                  color="bg-blue-500"
-                  model={model}
-                  fields={IS_FIELDS}
-                  statementKey="incomeStatement"
-                  highlightedFields={highlightedIS}
-                  newestField={newestFieldIS}
-                />
-                <StatementCard
-                  title="Balance Sheet"
-                  color="bg-amber-500"
-                  model={model}
-                  fields={BS_FIELDS}
-                  statementKey="balanceSheet"
-                  highlightedFields={highlightedBS}
-                  newestField={newestFieldBS}
-                />
-                <StatementCard
-                  title="Cash Flow Statement"
-                  color="bg-emerald-500"
-                  model={model}
-                  fields={CFS_FIELDS}
-                  statementKey="cashFlowStatement"
-                  highlightedFields={highlightedCFS}
-                  newestField={newestFieldCFS}
-                />
+              <div className="flex xl:hidden mb-1 flex-none p-1 bg-muted/30 rounded-lg border border-border/50 gap-1">
+                {(["IS", "BS", "CFS"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTable(tab)}
+                    className={cn(
+                      "flex-1 py-1 text-[9px] font-bold rounded-md transition-all uppercase tracking-tight",
+                      activeTable === tab
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {tab === "IS" ? "Income" : tab === "BS" ? "Balance" : "Cash Flow"}
+                  </button>
+                ))}
               </div>
 
-              {revealedStepCount > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-                >
-                  <Card className="shadow-sm border-border/40">
-                    <CardContent className="pt-4 pb-4 space-y-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        <h3 className="font-bold text-sm">Changes Revealed</h3>
-                      </div>
-                      <div className="space-y-1.5">
-                        {stepChanges.slice(0, revealedStepCount).map((step, i) => {
-                          const isNewest = i === revealedStepCount - 1;
-                          return (
-                            <motion.div
-                              key={`${step.field}-${i}`}
-                              initial={{ opacity: 0, x: -12 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              className={cn(
-                                "flex items-center gap-2 text-xs rounded-md px-2 py-1 transition-colors",
-                                isNewest && "bg-primary/5 ring-1 ring-primary/20"
-                              )}
-                            >
-                              <Badge variant="secondary" className="text-[8px] px-1.5 py-0 font-bold shrink-0">{i + 1}</Badge>
-                              <Badge
-                                variant="outline"
+              <div className="flex-1 overflow-y-auto xl:overflow-visible min-h-0 space-y-4 pr-1">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                  <div className={cn(activeTable !== "IS" && "hidden xl:block")}>
+                    <StatementCard
+                      title="Income Statement"
+                      color="bg-blue-500"
+                      model={model}
+                      fields={IS_FIELDS}
+                      statementKey="incomeStatement"
+                      highlightedFields={highlightedIS}
+                      newestField={newestFieldIS}
+                    />
+                  </div>
+                  <div className={cn(activeTable !== "BS" && "hidden xl:block")}>
+                    <StatementCard
+                      title="Balance Sheet"
+                      color="bg-amber-500"
+                      model={model}
+                      fields={BS_FIELDS}
+                      statementKey="balanceSheet"
+                      highlightedFields={highlightedBS}
+                      newestField={newestFieldBS}
+                    />
+                  </div>
+                  <div className={cn(activeTable !== "CFS" && "hidden xl:block")}>
+                    <StatementCard
+                      title="Cash Flow Statement"
+                      color="bg-emerald-500"
+                      model={model}
+                      fields={CFS_FIELDS}
+                      statementKey="cashFlowStatement"
+                      highlightedFields={highlightedCFS}
+                      newestField={newestFieldCFS}
+                    />
+                  </div>
+                </div>
+
+                {revealedStepCount > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                  >
+                    <Card className="shadow-sm border-border/40">
+                      <CardContent className="pt-3 pb-3 xl:pt-4 xl:pb-4 space-y-2">
+                        <div className="flex items-center gap-2 mb-1 xl:mb-2">
+                          <Sparkles className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-primary" />
+                          <h3 className="font-bold text-xs xl:text-sm">Changes Revealed</h3>
+                        </div>
+                        <div className="space-y-1.5">
+                          {stepChanges.slice(0, revealedStepCount).map((step, i) => {
+                            const isNewest = i === revealedStepCount - 1;
+                            return (
+                              <motion.div
+                                key={`${step.field}-${i}`}
+                                initial={{ opacity: 0, x: -12 }}
+                                animate={{ opacity: 1, x: 0 }}
                                 className={cn(
-                                  "text-[8px] px-1 py-0 shrink-0",
-                                  step.statement === "Income Statement" && "border-blue-300 text-blue-600",
-                                  step.statement === "Balance Sheet" && "border-amber-300 text-amber-600",
-                                  step.statement === "Cash Flow" && "border-emerald-300 text-emerald-600"
+                                  "flex items-center gap-2 text-[10px] xl:text-xs rounded-md px-2 py-1 transition-colors",
+                                  isNewest && "bg-primary/5 ring-1 ring-primary/20"
                                 )}
                               >
-                                {step.statement === "Income Statement" ? "IS" : step.statement === "Balance Sheet" ? "BS" : "CFS"}
-                              </Badge>
-                              <span className="font-medium truncate">{step.label}</span>
-                              <span className={cn(
-                                "ml-auto flex items-center gap-0.5 font-bold tabular-nums shrink-0",
-                                step.delta > 0 ? "text-emerald-600" : "text-red-500"
-                              )}>
-                                {step.delta > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                                {fmt(Math.abs(step.delta))}
-                              </span>
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {showExplanation && result && (
-                    <Card className="shadow-sm border-l-4 border-l-primary border-border/40">
-                      <CardContent className="pt-4 pb-4 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Bot className="w-4 h-4 text-primary" />
-                          <h3 className="font-bold text-sm">Explanation</h3>
+                                <Badge variant="secondary" className="text-[8px] px-1.5 py-0 font-bold shrink-0">{i + 1}</Badge>
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[8px] px-1 py-0 shrink-0",
+                                    step.statement === "Income Statement" && "border-blue-300 text-blue-600",
+                                    step.statement === "Balance Sheet" && "border-amber-300 text-amber-600",
+                                    step.statement === "Cash Flow" && "border-emerald-300 text-emerald-600"
+                                  )}
+                                >
+                                  {step.statement === "Income Statement" ? "IS" : step.statement === "Balance Sheet" ? "BS" : "CFS"}
+                                </Badge>
+                                <span className="font-medium truncate">{step.label}</span>
+                                <span className={cn(
+                                  "ml-auto flex items-center gap-0.5 font-bold tabular-nums shrink-0",
+                                  step.delta > 0 ? "text-emerald-600" : "text-red-500"
+                                )}>
+                                  {step.delta > 0 ? <ArrowUp className="w-2.5 h-2.5 xl:w-3 xl:h-3" /> : <ArrowDown className="w-2.5 h-2.5 xl:w-3 xl:h-3" />}
+                                  {fmt(Math.abs(step.delta))}
+                                </span>
+                              </motion.div>
+                            );
+                          })}
                         </div>
-                        <ol className="space-y-2">
-                          {result.explanation.map((step, i) => (
-                            <motion.li
-                              key={i}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: i <= revealedExplanationIndex ? 1 : 0.15 }}
-                              className="flex gap-2 text-xs leading-relaxed"
-                            >
-                              <span className="text-primary font-bold shrink-0">{i + 1}.</span>
-                              <span className="text-muted-foreground">{step}</span>
-                            </motion.li>
-                          ))}
-                        </ol>
-
-                        {allRevealed && result.mentalModel.length > 0 && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mt-3"
-                          >
-                            <Separator className="mb-3 opacity-50" />
-                            <div className="flex items-center gap-2 mb-2">
-                              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                              <p className="text-[11px] font-bold">Mental Model</p>
-                            </div>
-                            <div className="space-y-1 p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-800/30">
-                              {result.mentalModel.map((line, i) => (
-                                <p key={i} className="text-[11px] text-muted-foreground leading-relaxed">{line}</p>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
                       </CardContent>
                     </Card>
-                  )}
-                </motion.div>
-              )}
+
+                    {showExplanation && result && (
+                      <Card className="shadow-sm border-l-4 border-l-primary border-border/40">
+                        <CardContent className="pt-3 pb-3 xl:pt-4 xl:pb-4 space-y-2 xl:space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Bot className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-primary" />
+                            <h3 className="font-bold text-xs xl:text-sm">Explanation</h3>
+                          </div>
+                          <ol className="space-y-2">
+                            {result.explanation.map((step, i) => (
+                              <motion.li
+                                key={i}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: i <= revealedExplanationIndex ? 1 : 0.15 }}
+                                className="flex gap-2 text-[10px] xl:text-xs leading-tight xl:leading-relaxed"
+                              >
+                                <span className="text-primary font-bold shrink-0">{i + 1}.</span>
+                                <span className="text-muted-foreground">{step}</span>
+                              </motion.li>
+                            ))}
+                          </ol>
+
+                          {allRevealed && result.mentalModel.length > 0 && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-3"
+                            >
+                              <Separator className="mb-3 opacity-50" />
+                              <div className="flex items-center gap-2 mb-2">
+                                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                                <p className="text-[11px] font-bold">Mental Model</p>
+                              </div>
+                              <div className="space-y-1 p-2 xl:p-2.5 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-800/30">
+                                {result.mentalModel.map((line, i) => (
+                                  <p key={i} className="text-[10px] xl:text-[11px] text-muted-foreground leading-tight xl:leading-relaxed">{line}</p>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </motion.div>
+                )}
+              </div>
             </>
           )}
         </div>
