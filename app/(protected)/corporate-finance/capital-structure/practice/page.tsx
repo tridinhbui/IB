@@ -23,12 +23,6 @@ export default function CapitalStructurePracticePage() {
     recordVisit("capital-structure");
   }, [recordVisit]);
 
-  useEffect(() => {
-    if (finished && stats.answered > 0) {
-      completePractice("capital-structure", stats.accuracy);
-    }
-  }, [finished, stats.answered, stats.accuracy, completePractice]);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
@@ -55,6 +49,12 @@ export default function CapitalStructurePracticePage() {
       accuracy: answered > 0 ? Math.round((correctCount / answered) * 100) : 0,
     };
   }, [answers]);
+
+  useEffect(() => {
+    if (finished && stats.answered > 0) {
+      completePractice("capital-structure", stats.accuracy);
+    }
+  }, [finished, stats.answered, stats.accuracy, completePractice]);
 
   const handleSubmit = useCallback(() => {
     if (!q || userAnswer === undefined) return;

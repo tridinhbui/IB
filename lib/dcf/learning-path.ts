@@ -4,7 +4,6 @@ import {
   Hammer,
   Building2,
   Grid3X3,
-  Calculator,
 } from "lucide-react";
 
 export interface DCFLearningStep {

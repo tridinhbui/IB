@@ -143,7 +143,6 @@ export default function DCFPage() {
   const completeScenario = useDCFStore((s) => s.completeScenario);
   const getStepProgress = useDCFStore((s) => s.getStepProgress);
   const getOverallProgress = useDCFStore((s) => s.getOverallProgress);
-  const getNextStep = useDCFStore((s) => s.getNextStep);
   const getStreakDays = useDCFStore((s) => s.getStreakDays);
 
   const [activeTab, setActiveTab] = useState("learn");

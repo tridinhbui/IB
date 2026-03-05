@@ -5,7 +5,6 @@ import {
   Hammer,
   TrendingUp,
   Target,
-  Landmark,
 } from "lucide-react";
 
 export interface LBOLearningStep {

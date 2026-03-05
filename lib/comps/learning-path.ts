@@ -3,7 +3,6 @@ import {
   BookOpen,
   Hammer,
   Grid3X3,
-  BarChart3,
 } from "lucide-react";
 
 export interface CompsLearningStep {

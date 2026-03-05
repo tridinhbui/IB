@@ -13,7 +13,6 @@ import {
   BookOpen,
   Target,
   CheckCircle2,
-  Circle,
   Clock,
 } from "lucide-react";
 import { useCorporateFinanceStore } from "@/store/useCorporateFinanceStore";

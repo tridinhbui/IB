@@ -4,7 +4,6 @@ import {
   Briefcase,
   Zap,
   BarChart3,
-  Lightbulb,
 } from "lucide-react";
 
 export interface BALearningStep {
