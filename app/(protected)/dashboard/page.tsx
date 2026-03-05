@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useQuizStore } from "@/store/useQuizStore";
@@ -58,13 +59,24 @@ export default function DashboardPage() {
     difficulty,
     setDifficulty,
     eliteMode,
-    progress,
-    getAccuracy,
-    getWeakestSection,
+    dbAnalytics,
+    fetchDBAnalytics,
   } = useQuizStore();
 
-  const accuracy = getAccuracy();
-  const weakest = getWeakestSection();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    fetchDBAnalytics();
+  }, [fetchDBAnalytics]);
+
+  const accuracy = mounted ? dbAnalytics.overall.overallAccuracy : 0;
+  const totalDone = mounted ? dbAnalytics.overall.totalQuestionsDone : 0;
+  const weakest = useMemo(() => {
+    if (!mounted || dbAnalytics.sections.length === 0) return "N/A";
+    const sorted = [...dbAnalytics.sections].sort((a, b) => a.accuracy - b.accuracy);
+    return sorted[0]?.section || "N/A";
+  }, [mounted, dbAnalytics]);
 
   return (
     <motion.div
@@ -113,7 +125,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: BookOpen, label: "Questions Done", value: progress.totalCompleted, color: "from-amber-500/10 to-amber-600/5", iconColor: "text-amber-600" },
+          { icon: BookOpen, label: "Questions Done", value: totalDone, color: "from-amber-500/10 to-amber-600/5", iconColor: "text-amber-600" },
           { icon: Target, label: "Accuracy", value: `${accuracy}%`, color: "from-finstep-orange/10 to-finstep-orange/5", iconColor: "text-finstep-orange" },
           { icon: AlertTriangle, label: "Weakest Section", value: weakest, color: "from-red-500/10 to-red-600/5", iconColor: "text-red-600" },
           { icon: Trophy, label: "Current Rank", value: getRankLabel(accuracy), color: "from-orange-500/10 to-orange-600/5", iconColor: getRankColor(accuracy) },
@@ -187,11 +199,11 @@ export default function DashboardPage() {
         <Card className="shadow-sm border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
           <CardContent className="pt-6">
             <h3 className="font-varela font-bold text-lg text-finstep-brown mb-4">Recent Results</h3>
-            {(progress?.quizHistory?.length ?? 0) === 0 ? (
+            {(dbAnalytics.recentResults?.length ?? 0) === 0 ? (
               <p className="text-sm text-finstep-brown/60">No quizzes completed yet.</p>
             ) : (
               <div className="space-y-2.5">
-                {(progress?.quizHistory ?? []).slice(-4).reverse().map((result) => (
+                {(dbAnalytics.recentResults ?? []).slice(0, 4).map((result: { id: string; section: string; difficulty: string; accuracy: number }) => (
                   <div key={result.id} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span className="text-finstep-brown/70 font-semibold text-xs truncate max-w-[120px]">
@@ -208,7 +220,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
-            {(progress?.quizHistory?.length ?? 0) > 0 && (
+            {(dbAnalytics.recentResults?.length ?? 0) > 0 && (
               <Button
                 variant="outline"
                 size="sm"

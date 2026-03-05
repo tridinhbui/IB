@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -33,18 +33,28 @@ function isDomainActive(pathname: string | null, domain: (typeof DOMAINS)[0]): b
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { eliteMode, setEliteMode, dbAnalytics, fetchDBAnalytics, fetchAllTechnicalQuestions } = useQuizStore();
+  const { eliteMode, setEliteMode, dbAnalytics, fetchDBAnalytics, fetchAllTechnicalQuestions, resetUserData } = useQuizStore();
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
+  const prevUserEmail = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     setMounted(true);
     if (session) {
+      const currentEmail = session.user?.email;
+      // If a DIFFERENT user has logged in, clear all previous user's data first
+      if (prevUserEmail.current !== undefined && prevUserEmail.current !== currentEmail) {
+        resetUserData();
+      }
+      prevUserEmail.current = currentEmail;
       fetchDBAnalytics();
       fetchAllTechnicalQuestions();
+    } else {
+      // Session gone (signed out), clear data and reset tracking
+      prevUserEmail.current = null;
     }
-  }, [session, fetchDBAnalytics, fetchAllTechnicalQuestions]);
+  }, [session, fetchDBAnalytics, fetchAllTechnicalQuestions, resetUserData]);
 
   return (
     <aside className="flex flex-col w-full bg-finstep-beige/30 h-screen sticky top-0">
@@ -98,26 +108,26 @@ export function Sidebar() {
             <CollapsibleContent>
               <div className="ml-4 mt-1 space-y-0.5 border-l-2 border-finstep-brown/10 pl-3">
                 {domain.items.map((item) => {
-                    const isActive = isPathActive(pathname, item.href);
-                    const isComingSoon = item.label === "Coming Soon";
-                    return (
-                      <Link key={item.href} href={item.href}>
-                        <motion.div
-                          whileHover={{ x: 2 }}
-                          className={cn(
-                            "flex items-center gap-2 px-2 py-2 rounded-md text-xs font-nunito font-semibold transition-all",
-                            isActive
-                              ? "bg-finstep-orange text-white shadow-md shadow-finstep-orange/20"
-                              : "text-finstep-brown/70 hover:text-finstep-brown hover:bg-finstep-beige/50",
-                            isComingSoon && "opacity-70"
-                          )}
-                        >
-                          <item.icon className="w-3.5 h-3.5" />
-                          {item.label}
-                        </motion.div>
-                      </Link>
-                    );
-                  })}
+                  const isActive = isPathActive(pathname, item.href);
+                  const isComingSoon = item.label === "Coming Soon";
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <motion.div
+                        whileHover={{ x: 2 }}
+                        className={cn(
+                          "flex items-center gap-2 px-2 py-2 rounded-md text-xs font-nunito font-semibold transition-all",
+                          isActive
+                            ? "bg-finstep-orange text-white shadow-md shadow-finstep-orange/20"
+                            : "text-finstep-brown/70 hover:text-finstep-brown hover:bg-finstep-beige/50",
+                          isComingSoon && "opacity-70"
+                        )}
+                      >
+                        <item.icon className="w-3.5 h-3.5" />
+                        {item.label}
+                      </motion.div>
+                    </Link>
+                  );
+                })}
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -220,7 +230,7 @@ export function Sidebar() {
 
       <div className="p-3">
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => { resetUserData(); signOut({ callbackUrl: "/login" }); }}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-nunito font-bold text-finstep-brown/60 hover:text-red-500 hover:bg-red-50 transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />

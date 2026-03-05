@@ -80,6 +80,7 @@ interface QuizState {
   setTimeRemaining: (t: number) => void;
   resetQuiz: () => void;
   resetDragQuiz: () => void;
+  resetUserData: () => void;
   getWeakestSection: () => string;
   getAccuracy: () => number;
 }
@@ -180,6 +181,14 @@ export const useQuizStore = create<QuizState>()(
       },
 
       fetchDBAnalytics: async () => {
+        // Immediately clear stale data before fetching new user's data
+        set({
+          dbAnalytics: {
+            overall: { totalQuestionsDone: 0, totalCorrectAnswers: 0, overallAccuracy: 0 },
+            sections: [],
+            recentResults: [],
+          }
+        });
         try {
           const res = await fetch('/api/quiz-progress');
           if (res.ok) {
@@ -372,6 +381,24 @@ export const useQuizStore = create<QuizState>()(
           dragQuizCompleted: false,
         }),
 
+      resetUserData: () => {
+        set({
+          progress: defaultProgress,
+          dbAnalytics: {
+            overall: { totalQuestionsDone: 0, totalCorrectAnswers: 0, overallAccuracy: 0 },
+            sections: [],
+            recentResults: [],
+          },
+          allTechnicalQuestions: [],
+          essayQuestions: [],
+          currentQuiz: [],
+          currentIndex: 0,
+          answers: {},
+          quizStarted: false,
+          quizCompleted: false,
+        });
+      },
+
       getWeakestSection: () => {
         const { progress } = get();
         let weakest = "N/A";
@@ -399,13 +426,13 @@ export const useQuizStore = create<QuizState>()(
       },
     }),
     {
-      name: "ib400-quiz-store",
+      name: "ib400-quiz-store-v2",
+      // SECURITY: Only persist non-sensitive UI preferences.
+      // Never persist user-specific data (progress, analytics, questions).
+      // This prevents data leakage between different users on the same browser.
       partialize: (state) => ({
-        progress: state.progress,
         difficulty: state.difficulty,
         eliteMode: state.eliteMode,
-        allTechnicalQuestions: state.allTechnicalQuestions,
-        essayQuestions: state.essayQuestions,
       }),
     }
   )

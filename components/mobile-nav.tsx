@@ -43,7 +43,7 @@ const navItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
-  const { eliteMode, setEliteMode } = useQuizStore();
+  const { eliteMode, setEliteMode, resetUserData } = useQuizStore();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -114,7 +114,7 @@ export function MobileNav() {
               <Separator className="my-3" />
 
               <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={() => { resetUserData(); signOut({ callbackUrl: "/login" }); }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50"
               >
                 <LogOut className="w-4 h-4" />
