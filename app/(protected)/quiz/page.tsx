@@ -84,7 +84,14 @@ const sectionConfigs: {
 
 export default function QuizPage() {
   const router = useRouter();
-  const { allTechnicalQuestions, setAllTechnicalQuestions } = useQuizStore();
+  const {
+    allTechnicalQuestions,
+    setAllTechnicalQuestions,
+    startQuiz,
+    submitAnswer: storeSubmitAnswer,
+    completeQuiz,
+    fetchDBAnalytics,
+  } = useQuizStore();
   const [loading, setLoading] = useState(allTechnicalQuestions.length === 0);
   const [mode, setMode] = useState<QuizMode>("select");
   const [selectedSection, setSelectedSection] = useState<Section>("Fit & Behavioral");
@@ -93,6 +100,23 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [finished, setFinished] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const [dbSections, setDbSections] = useState<any[]>([]);
+
+  const fetchProgress = useCallback(() => {
+    fetch('/api/quiz-progress')
+      .then(res => res.json())
+      .then(data => {
+        if (data.sections) {
+          setDbSections(data.sections);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    fetchProgress();
+  }, [fetchProgress]);
 
   // Load questions from DB if store is empty
   useEffect(() => {
@@ -120,15 +144,12 @@ export default function QuizPage() {
 
   const handleStartSection = useCallback((section: Section) => {
     const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
-    const sectionQuestions = safeQuestions.filter(q => q.section === section);
+    const sectionQuestions = shuffleArray(safeQuestions.filter(q => q.section === section));
     setSelectedSection(section);
-    setQuestions(shuffleArray(sectionQuestions));
-    setCurrentIndex(0);
-    setAnswers({});
-    setRevealed({});
-    setFinished(false);
+    setQuestions(sectionQuestions);
+    startQuiz(section, sectionQuestions);
     setMode("mc");
-  }, [allTechnicalQuestions]);
+  }, [allTechnicalQuestions, startQuiz]);
 
   const question = questions[currentIndex];
   const userAnswer = question ? answers[question.id] : undefined;
@@ -147,7 +168,7 @@ export default function QuizPage() {
       correct,
       answered: Object.keys(answers).length,
       total: questions.length,
-      accuracy: Object.keys(answers).length > 0 ? Math.round((correct / Object.keys(answers).length) * 100) : 0,
+      accuracy: questions.length > 0 ? Math.round((correct / questions.length) * 100) : 0,
     };
   }, [answers, questions]);
 
@@ -155,18 +176,28 @@ export default function QuizPage() {
     (choice: string) => {
       if (isRevealed || !question) return;
       setAnswers((prev) => ({ ...prev, [question.id]: choice }));
+      storeSubmitAnswer(question.id, choice);
       setRevealed((prev) => ({ ...prev, [question.id]: true }));
     },
-    [isRevealed, question]
+    [isRevealed, question, storeSubmitAnswer]
   );
 
   const handleNext = useCallback(() => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      setFinished(true);
+      setIsFinishing(true);
+      completeQuiz().then(() => {
+        // completeQuiz already calls fetchDBAnalytics() internally on success
+        setFinished(true);
+        setIsFinishing(false);
+      }).catch((err) => {
+        console.error("Critical error during quiz completion:", err);
+        setFinished(true);
+        setIsFinishing(false);
+      });
     }
-  }, [currentIndex, questions.length]);
+  }, [currentIndex, questions.length, completeQuiz]);
 
   const handleShuffle = useCallback(() => {
     const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
@@ -187,8 +218,9 @@ export default function QuizPage() {
 
   const handleBackToSelect = useCallback(() => {
     setMode("select");
+    fetchProgress();
     handleReset();
-  }, [handleReset]);
+  }, [handleReset, fetchProgress]);
 
   const randomTip = useMemo(() => {
     const tips = TIPS[selectedSection] || TIPS["Fit & Behavioral"];
@@ -239,10 +271,10 @@ export default function QuizPage() {
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Answer multiple-choice questions covering Fit & Behavioral topics. Instant feedback with explanations.
+                    Answer multiple-choice questions covering all technical and behavioral topics. Instant feedback with explanations.
                   </p>
                   <Badge variant="secondary" className="text-[10px]">
-                    {fitBehavioralQuestions.length} questions
+                    {allTechnicalQuestions.length} questions
                   </Badge>
                 </CardContent>
               </Card>
@@ -306,6 +338,9 @@ export default function QuizPage() {
             {sectionConfigs.map((section, index) => {
               const safeQuestions = Array.isArray(allTechnicalQuestions) ? allTechnicalQuestions : [];
               const questionCount = safeQuestions.filter(q => q.section === section.label).length;
+              const sectionDb = dbSections.find(s => s.section === section.label);
+              const displayAccuracy = sectionDb ? `${sectionDb.accuracy}%` : "0%";
+
               return (
                 <motion.div
                   key={section.label}
@@ -324,9 +359,18 @@ export default function QuizPage() {
                       </div>
                       <div>
                         <h3 className="font-bold text-base leading-tight">{section.label}</h3>
-                        <Badge variant="secondary" className="mt-2 text-[10px] px-2 py-0">
-                          {questionCount} questions
-                        </Badge>
+                        <div className="mt-2 flex items-center justify-center gap-2">
+                          <Badge variant="secondary" className="text-[10px] px-2 py-0">
+                            {questionCount} questions
+                          </Badge>
+                          <Badge variant="outline" className={cn("text-[10px] px-2 py-0",
+                            sectionDb?.accuracy >= 80 ? "text-emerald-600 border-emerald-200 bg-emerald-50" :
+                              sectionDb?.accuracy >= 50 ? "text-amber-600 border-amber-200 bg-amber-50" :
+                                "text-muted-foreground"
+                          )}>
+                            {displayAccuracy} Accuracy
+                          </Badge>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -366,12 +410,12 @@ export default function QuizPage() {
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Correct</p>
                 </div>
                 <div className="text-center min-w-[80px]">
-                  <p className="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">{stats.answered - stats.correct}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-red-500 tabular-nums">{stats.total - stats.correct}</p>
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">Wrong</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                <Button variant="outline" onClick={() => setMode("section_select")}>
+                <Button variant="outline" onClick={() => { setMode("section_select"); fetchProgress(); }}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Other Sections
                 </Button>
@@ -514,7 +558,7 @@ export default function QuizPage() {
               <CardContent className="pt-5 pb-5 space-y-5">
                 <div className="flex items-start gap-3">
                   <Badge className="gradient-primary text-white text-[10px] px-2 py-0.5 shrink-0 tabular-nums">
-                    {currentIndex + 1}/{TOTAL_IB400}
+                    {currentIndex + 1}/{questions.length}
                   </Badge>
                   <p className="text-sm font-medium leading-relaxed flex-1 break-words overflow-wrap-anywhere overflow-hidden">
                     {question.question}
@@ -628,11 +672,21 @@ export default function QuizPage() {
                       </div>
 
                       <div className="flex justify-end pt-1">
-                        <Button onClick={handleNext} size="sm" className="gradient-primary text-white shadow-md shadow-primary/20">
+                        <Button
+                          onClick={handleNext}
+                          disabled={isFinishing}
+                          size="sm"
+                          className="gradient-primary text-white shadow-md shadow-primary/20"
+                        >
                           {currentIndex < questions.length - 1 ? (
                             <>
                               Next Question
                               <ChevronRight className="w-4 h-4 ml-1" />
+                            </>
+                          ) : isFinishing ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Calculating...
                             </>
                           ) : (
                             <>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useQuizStore } from "@/store/useQuizStore";
@@ -84,18 +84,27 @@ export default function DashboardPage() {
     setDifficulty,
     eliteMode,
     progress,
-    getAccuracy,
-    getWeakestSection,
+    dbAnalytics,
+    fetchDBAnalytics,
     startQuiz,
   } = useQuizStore();
 
-  const accuracy = getAccuracy();
-  const weakest = getWeakestSection();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    fetchDBAnalytics();
+  }, [fetchDBAnalytics]);
+
+  const displayAccuracy = mounted ? dbAnalytics.overall.overallAccuracy : 0;
+
+  // Calculate weakest section from DB data
+  const displayWeakest = useMemo(() => {
+    console.log('[Dashboard] Current dbAnalytics:', dbAnalytics);
+    if (!mounted || dbAnalytics.sections.length === 0) return "N/A";
+    const sorted = [...dbAnalytics.sections].sort((a, b) => a.accuracy - b.accuracy);
+    return sorted[0]?.section || "N/A";
+  }, [mounted, dbAnalytics.sections]);
 
   const handleStartSectionQuiz = (section: Section) => {
     startQuiz(section);
@@ -157,7 +166,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">
-                    {mounted ? progress.totalCompleted : 0}
+                    {mounted ? dbAnalytics.overall.totalQuestionsDone : 0}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Questions Done
@@ -176,7 +185,7 @@ export default function DashboardPage() {
                   <Target className="w-5 h-5 text-finstep-orange" />
                 </div>
                 <div>
-                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">{mounted ? accuracy : 0}%</p>
+                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">{mounted ? dbAnalytics.overall.overallAccuracy : 0}%</p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Accuracy</p>
                 </div>
               </div>
@@ -193,7 +202,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold truncate max-w-[120px] text-finstep-brown">
-                    {mounted ? weakest : "N/A"}
+                    {displayWeakest}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Weakest Section
@@ -212,8 +221,8 @@ export default function DashboardPage() {
                   <Trophy className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-bold ${getRankColor(mounted ? accuracy : 0)}`}>
-                    {getRankLabel(mounted ? accuracy : 0)}
+                  <p className={`text-sm font-bold ${getRankColor(displayAccuracy)}`}>
+                    {getRankLabel(displayAccuracy)}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Current Rank</p>
                 </div>
@@ -286,13 +295,13 @@ export default function DashboardPage() {
           <Card className="shadow-sm border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <h3 className="font-varela font-bold text-lg text-finstep-brown mb-4">Recent Results</h3>
-              {!mounted || progress.quizHistory.length === 0 ? (
+              {!mounted || dbAnalytics.recentResults.length === 0 ? (
                 <p className="text-sm text-finstep-brown/60">
                   {mounted ? "No quizzes completed yet." : "Loading results..."}
                 </p>
               ) : (
                 <div className="space-y-2.5">
-                  {progress.quizHistory.slice(-4).reverse().map((result) => (
+                  {dbAnalytics.recentResults.map((result) => (
                     <div
                       key={result.id}
                       className="flex items-center justify-between text-sm"
@@ -326,12 +335,9 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {sectionConfigs.map((section) => {
-            const stats = progress.sectionStats[section.label];
-            const sectionAcc =
-              stats && stats.total > 0
-                ? Math.round((stats.correct / stats.total) * 100)
-                : 0;
-            const questionCount = allQuestions.filter(
+            const sectionData = dbAnalytics.sections.find(s => s.section === section.label);
+            const sectionAcc = sectionData ? sectionData.accuracy : 0;
+            const questionCountInPool = allQuestions.filter(
               (q) => q.section === section.label
             ).length;
 
@@ -350,7 +356,7 @@ export default function DashboardPage() {
                         </CardTitle>
                       </div>
                       <Badge variant="secondary" className="text-[10px] px-1.5 bg-finstep-beige text-finstep-brown border-none hover:bg-finstep-beige">
-                        {questionCount}
+                        {questionCountInPool}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -363,9 +369,9 @@ export default function DashboardPage() {
                         </div>
                         <Progress value={mounted ? sectionAcc : 0} className="h-2 bg-finstep-beige [&>div]:bg-finstep-orange" />
                       </div>
-                      {mounted && stats && (
+                      {mounted && sectionData && (
                         <p className="text-xs text-finstep-brown/60">
-                          {stats.correct}/{stats.total} correct
+                          {sectionData.correctAnswers}/{sectionData.questionsDone} correct
                         </p>
                       )}
                       <Button

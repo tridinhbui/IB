@@ -33,14 +33,16 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
+  id                 String             @id @default(cuid())
+  name               String?
+  email              String?            @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  accounts           Account[]
+  sessions           Session[]
+  userQuizProgresses UserQuizProgress[]
+  quizAttempts       QuizAttempt[]
 }
 
 model VerificationToken {
@@ -73,11 +75,12 @@ model EssayQuestion {
 }
 
 model QuizCategory {
-  id        String         @id @default(cuid())
-  name      String         @unique
-  slug      String         @unique
-  createdAt DateTime       @default(now())
-  questions QuizQuestion[]
+  id                 String             @id @default(cuid())
+  name               String             @unique
+  slug               String             @unique
+  createdAt          DateTime           @default(now())
+  questions          QuizQuestion[]
+  userQuizProgresses UserQuizProgress[]
 }
 
 model QuizQuestion {
@@ -95,4 +98,34 @@ model QuizQuestion {
   category      QuizCategory @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
+}
+
+model UserQuizProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  categoryId     String
+  questionsDone  Int      @default(0)
+  correctAnswers Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category QuizCategory @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+}
+
+model QuizAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  section    String
+  difficulty String
+  score      Int
+  total      Int
+  accuracy   Int
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
