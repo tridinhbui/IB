@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useQuizStore } from "@/store/useQuizStore";
@@ -90,6 +91,11 @@ export default function DashboardPage() {
 
   const accuracy = getAccuracy();
   const weakest = getWeakestSection();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleStartSectionQuiz = (section: Section) => {
     startQuiz(section);
@@ -151,7 +157,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">
-                    {progress.totalCompleted}
+                    {mounted ? progress.totalCompleted : 0}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Questions Done
@@ -170,7 +176,7 @@ export default function DashboardPage() {
                   <Target className="w-5 h-5 text-finstep-orange" />
                 </div>
                 <div>
-                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">{accuracy}%</p>
+                  <p className="text-2xl font-varela font-bold tabular-nums text-finstep-brown">{mounted ? accuracy : 0}%</p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Accuracy</p>
                 </div>
               </div>
@@ -187,7 +193,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold truncate max-w-[120px] text-finstep-brown">
-                    {weakest}
+                    {mounted ? weakest : "N/A"}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">
                     Weakest Section
@@ -206,8 +212,8 @@ export default function DashboardPage() {
                   <Trophy className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
-                  <p className={`text-sm font-bold ${getRankColor(accuracy)}`}>
-                    {getRankLabel(accuracy)}
+                  <p className={`text-sm font-bold ${getRankColor(mounted ? accuracy : 0)}`}>
+                    {getRankLabel(mounted ? accuracy : 0)}
                   </p>
                   <p className="text-xs text-finstep-brown/60 font-semibold uppercase tracking-wider">Current Rank</p>
                 </div>
@@ -280,9 +286,9 @@ export default function DashboardPage() {
           <Card className="shadow-sm border-finstep-brown/10 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <h3 className="font-varela font-bold text-lg text-finstep-brown mb-4">Recent Results</h3>
-              {progress.quizHistory.length === 0 ? (
+              {!mounted || progress.quizHistory.length === 0 ? (
                 <p className="text-sm text-finstep-brown/60">
-                  No quizzes completed yet.
+                  {mounted ? "No quizzes completed yet." : "Loading results..."}
                 </p>
               ) : (
                 <div className="space-y-2.5">
@@ -300,7 +306,7 @@ export default function DashboardPage() {
                         </Badge>
                       </div>
                       <span className={`font-varela font-bold tabular-nums ${getRankColor(result.accuracy)}`}>
-                        {result.accuracy}%
+                        {mounted ? `${result.accuracy}%` : "0%"}
                       </span>
                     </div>
                   ))}
@@ -353,11 +359,11 @@ export default function DashboardPage() {
                       <div>
                         <div className="flex justify-between text-xs mb-1.5">
                           <span className="text-finstep-brown/60">Accuracy</span>
-                          <span className="font-varela font-bold tabular-nums text-finstep-brown">{sectionAcc}%</span>
+                          <span className="font-varela font-bold tabular-nums text-finstep-brown">{mounted ? sectionAcc : 0}%</span>
                         </div>
-                        <Progress value={sectionAcc} className="h-2 bg-finstep-beige [&>div]:bg-finstep-orange" />
+                        <Progress value={mounted ? sectionAcc : 0} className="h-2 bg-finstep-beige [&>div]:bg-finstep-orange" />
                       </div>
-                      {stats && (
+                      {mounted && stats && (
                         <p className="text-xs text-finstep-brown/60">
                           {stats.correct}/{stats.total} correct
                         </p>
